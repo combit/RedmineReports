@@ -22,7 +22,10 @@ namespace combit.RedmineReports
         {
             InitializeComponent();
             if (ConfigurationManager.ConnectionStrings["combit.RedmineReports.Properties.Settings.RedmineConnectionString"].ConnectionString.Contains("server=ip"))
+            {
                 MessageBox.Show("Please edit your 'RedmineReports.exe.config' in the \\bin folder and add a ConnectionString to your redmine database.\n If you want to print all projects use 'UseAllProjects = True' otherwise use 'UseAllProjects = False'", "Redmine Reports");
+                Environment.Exit(-1);
+            }
             _dataAccess = new RedmineMySqlDataAccess();
         }
 
@@ -104,7 +107,7 @@ namespace combit.RedmineReports
             try
             {
                 LL = new ListLabel();
-                // Add your License Key
+                // Add your License Key, String.Empty for the trial version
                 LL.LicensingInfo = Insert Key Here;
 
                 // fill project combobox
