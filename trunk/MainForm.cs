@@ -10,6 +10,7 @@ using combit.ListLabel17;
 using System.IO;
 using System.Configuration;
 using System.Data.Common;
+using System.Text.RegularExpressions;
 
 
 namespace combit.RedmineReports
@@ -21,11 +22,11 @@ namespace combit.RedmineReports
         public RedmineReportsForm()
         {
             InitializeComponent();
-            if (ConfigurationManager.ConnectionStrings["combit.RedmineReports.Properties.Settings.RedmineConnectionString"].ConnectionString.Contains("server=ip"))
+            if (ConfigurationManager.ConnectionStrings["combit.RedmineReports.Properties.Settings.RedmineConnectionString"].ConnectionString.Contains("server=IP"))
             {
                 MessageBox.Show("Please edit your 'RedmineReports.exe.config' in the \\bin folder and add a ConnectionString to your redmine database.\n If you want to print all projects use 'UseAllProjects = True' otherwise use 'UseAllProjects = False'", "Redmine Reports");
                 Environment.Exit(-1);
-            }
+            }   
             _dataAccess = new RedmineMySqlDataAccess();
         }
 
@@ -92,11 +93,11 @@ namespace combit.RedmineReports
             }
             catch (DbException ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.Message, ex.StackTrace);
             }
             catch (ListLabelException ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.Message, ex.StackTrace);
             }
         }
 
@@ -107,11 +108,11 @@ namespace combit.RedmineReports
             try
             {
                 LL = new ListLabel();
-                // Add your License Key, String.Empty for the trial version
-                LL.LicensingInfo = Insert Key Here;
+                // Add your License Key
+                LL.LicensingInfo = "";
 
                 // fill project combobox
-                cmbProject.DataSource = _dataAccess.GetRedmineProjects(Convert.ToBoolean(ConfigurationManager.AppSettings["UseAllProjects"]));
+                 cmbProject.DataSource = _dataAccess.GetRedmineProjects(Convert.ToBoolean(ConfigurationManager.AppSettings["UseAllProjects"]));
                 cmbProject.DisplayMember = "name";
                 cmbProject.ValueMember = "id";
 
@@ -197,6 +198,30 @@ namespace combit.RedmineReports
             if (fileDialog.ShowDialog() == DialogResult.OK)
                 return fileDialog.FileName;
             throw new ListLabelException("The dialog was canceled by the user.");
+        }
+
+        private void tbStartDate_TextChanged(object sender, EventArgs e)
+        {
+            TextBox source = sender as TextBox;
+            if (source == null)
+                return;
+
+            string text = source.Text;
+            if (Regex.IsMatch(text, "^[0-9]*$"))
+                return;
+            
+            source.TextChanged -= this.tbStartDate_TextChanged;
+
+            if(source.TextLength == 1)
+            {
+                source.ResetText();
+            }
+            else
+            {
+                source.ResetText();
+                source.AppendText(text.Substring(0, text.Length - 1));
+            }
+            source.TextChanged += this.tbStartDate_TextChanged;
         }
     }
 }
