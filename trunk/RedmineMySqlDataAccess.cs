@@ -28,22 +28,45 @@ namespace combit.RedmineReports
             }
         }
 
-        public override DataTable GetDataTable(string sql)
+        public override string GetParameterFormat()
+        {
+            return "@{0}";
+        }
+
+        public override DataTable GetDataTable(string sql, IDbDataParameter[] parameters)
         {
             try
             {
-                DataTable dt = new DataTable();                
-                MySqlDataAdapter myAdapter = new MySqlDataAdapter(sql, _connection as MySqlConnection);
+                DataTable dt = new DataTable();
+                MySqlCommand command = new MySqlCommand(sql, _connection as MySqlConnection);
 
+                if (parameters != null)
+                {
+                    foreach (IDbDataParameter parameter in parameters)
+                    {
+                        command.Parameters.AddWithValue(parameter.ParameterName, parameter.Value);
+                    }
+                }
+                MySqlDataAdapter myAdapter = new MySqlDataAdapter();
+                myAdapter.SelectCommand = command;
                 myAdapter.Fill(dt);
                 return dt;
             }
             catch (MySqlException ex)
             {
+                MessageBox.Show(ex.Message + "\n" + "Command was: " + sql);
+                return null;
+            }
+            catch (Exception ex)
+            {
                 MessageBox.Show(ex.Message);
                 return null;
             }
+        }
 
+        public override IDbDataParameter GetParameter()
+        {
+            return _connection.CreateCommand().CreateParameter();
         }
 
     }

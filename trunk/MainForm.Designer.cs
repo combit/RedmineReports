@@ -47,68 +47,109 @@
             // 
             // Label2
             // 
-            resources.ApplyResources(this.Label2, "Label2");
+            this.Label2.AutoSize = true;
+            this.Label2.Location = new System.Drawing.Point(14, 59);
             this.Label2.Name = "Label2";
+            this.Label2.Size = new System.Drawing.Size(94, 13);
+            this.Label2.TabIndex = 10;
+            this.Label2.Text = "Choose version(s):";
             // 
             // Label1
             // 
-            resources.ApplyResources(this.Label1, "Label1");
+            this.Label1.AutoSize = true;
+            this.Label1.Location = new System.Drawing.Point(14, 11);
             this.Label1.Name = "Label1";
+            this.Label1.Size = new System.Drawing.Size(81, 13);
+            this.Label1.TabIndex = 9;
+            this.Label1.Text = "Choose project:";
             // 
             // cmbProject
             // 
-            resources.ApplyResources(this.cmbProject, "cmbProject");
+            this.cmbProject.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbProject.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbProject.FormattingEnabled = true;
+            this.cmbProject.Location = new System.Drawing.Point(11, 27);
             this.cmbProject.Name = "cmbProject";
+            this.cmbProject.Size = new System.Drawing.Size(241, 21);
+            this.cmbProject.TabIndex = 8;
             this.cmbProject.SelectedIndexChanged += new System.EventHandler(this.cmbProject_SelectedIndexChanged);
             // 
             // btnDesign
             // 
-            resources.ApplyResources(this.btnDesign, "btnDesign");
+            this.btnDesign.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnDesign.Location = new System.Drawing.Point(11, 197);
             this.btnDesign.Name = "btnDesign";
+            this.btnDesign.Size = new System.Drawing.Size(100, 23);
+            this.btnDesign.TabIndex = 7;
+            this.btnDesign.Text = "&Design";
             this.btnDesign.UseVisualStyleBackColor = true;
             this.btnDesign.Click += new System.EventHandler(this.btnDesign_Click);
             // 
             // lboxVersion
             // 
-            resources.ApplyResources(this.lboxVersion, "lboxVersion");
+            this.lboxVersion.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.lboxVersion.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(246)))), ((int)(((byte)(220)))));
             this.lboxVersion.FormattingEnabled = true;
+            this.lboxVersion.Location = new System.Drawing.Point(11, 75);
             this.lboxVersion.Name = "lboxVersion";
             this.lboxVersion.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+            this.lboxVersion.Size = new System.Drawing.Size(241, 108);
+            this.lboxVersion.TabIndex = 11;
             // 
             // tbStartDate
             // 
-            resources.ApplyResources(this.tbStartDate, "tbStartDate");
+            this.tbStartDate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.tbStartDate.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(246)))), ((int)(((byte)(220)))));
+            this.tbStartDate.Location = new System.Drawing.Point(221, 198);
             this.tbStartDate.Name = "tbStartDate";
+            this.tbStartDate.Size = new System.Drawing.Size(31, 20);
+            this.tbStartDate.TabIndex = 12;
+            this.tbStartDate.Text = "7";
+            this.tbStartDate.TextChanged += new System.EventHandler(this.tbStartDate_TextChanged);
             // 
             // label3
             // 
-            resources.ApplyResources(this.label3, "label3");
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(128, 201);
             this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(87, 13);
+            this.label3.TabIndex = 13;
+            this.label3.Text = "Timespan (days):";
             // 
             // btnPrint
             // 
-            resources.ApplyResources(this.btnPrint, "btnPrint");
+            this.btnPrint.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnPrint.Location = new System.Drawing.Point(11, 226);
             this.btnPrint.Name = "btnPrint";
+            this.btnPrint.Size = new System.Drawing.Size(100, 23);
+            this.btnPrint.TabIndex = 16;
+            this.btnPrint.Text = "Create &Report";
             this.btnPrint.UseVisualStyleBackColor = true;
             this.btnPrint.Click += new System.EventHandler(this.button1_Click);
             // 
             // pictureBox1
             // 
-            resources.ApplyResources(this.pictureBox1, "pictureBox1");
+            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(233)))), ((int)(((byte)(233)))), ((int)(((byte)(233)))));
             this.pictureBox1.Image = global::combit.RedmineReports.Properties.Resources.Powered_by_LL;
+            this.pictureBox1.Location = new System.Drawing.Point(-2, 268);
             this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(265, 75);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.pictureBox1.TabIndex = 17;
             this.pictureBox1.TabStop = false;
             // 
             // RedmineReportsForm
             // 
-            resources.ApplyResources(this, "$this");
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
+            this.ClientSize = new System.Drawing.Size(262, 343);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.btnPrint);
             this.Controls.Add(this.label3);
@@ -118,7 +159,10 @@
             this.Controls.Add(this.Label1);
             this.Controls.Add(this.cmbProject);
             this.Controls.Add(this.btnDesign);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MinimumSize = new System.Drawing.Size(270, 351);
             this.Name = "RedmineReportsForm";
+            this.Text = "RedmineReports";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();

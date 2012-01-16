@@ -96,8 +96,20 @@ namespace combit.RedmineReports
 
             // get all issues of the selected project and version    
             sql = "SELECT issues.id, issues.created_on, issues.updated_on FROM issues"
-                      + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + closedIssuesSqlCommand + "";
-            dtClosedIssues = GetDataTable(sql);
+                      + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + " " + String.Format(GetParameterFormat(), "SQLCOMMAND") + closedIssuesSqlCommand + "";
+
+            // create parameters
+            List<IDbDataParameter> parameters = new List<IDbDataParameter>();
+            IDbDataParameter param = GetParameter();
+            IDbDataParameter sqlCommandparam = GetParameter();
+            parameters.Add(param);
+            param.ParameterName = String.Format(GetParameterFormat(), "PROJECTID");
+            param.Value = projectId;
+            parameters.Add(sqlCommandparam);
+            sqlCommandparam.ParameterName = String.Format(GetParameterFormat(), "SQLCOMMAND");
+            sqlCommandparam.Value = sqlCommand;
+
+            dtClosedIssues = GetDataTable(sql, parameters.ToArray<IDbDataParameter>());
 
             Dictionary<int, int> daysVsFixCount = new Dictionary<int, int>();
 
@@ -130,12 +142,19 @@ namespace combit.RedmineReports
 
         private DataTable CreateChangeSetTable(string projectId, int startDate)
         {
+            
             string sql = "SELECT repositories.id FROM repositories"
-                       + " INNER JOIN projects ON projects.parent_id = '" + projectId + "'"
+                       + " INNER JOIN projects ON projects.parent_id = " + String.Format(GetParameterFormat(), "PROJECTID")
                        + " WHERE repositories.project_id = projects.id"
-                       + " OR repositories.project_id =  '" + projectId + "' ORDER BY id";
+                       + " OR repositories.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + " ORDER BY id";
+            
+            List<IDbDataParameter> parameters = new List<IDbDataParameter>();
+            IDbDataParameter param = GetParameter();
+            parameters.Add(param);
+            param.ParameterName = String.Format(GetParameterFormat(), "PROJECTID");
+            param.Value = projectId;
 
-            DataTable dtProjects = GetDataTable(sql);
+            DataTable dtProjects = GetDataTable(sql, parameters.ToArray<IDbDataParameter>());
             DataTable dtChangeSets = new DataTable();
             dtChangeSets.Columns.Add("committed_on", typeof(DateTime));
             dtChangeSets.Columns.Add("committer");
@@ -170,14 +189,25 @@ namespace combit.RedmineReports
         {
             // object to hold the history table per id
             Dictionary<int, DataTable> historyTable = new Dictionary<int, DataTable>();
-
+            
             DataTable dtIssueIds;
             DataTable dtDefaultStatus;
 
+            // create parameters
+            List<IDbDataParameter> parameters = new List<IDbDataParameter>();
+            IDbDataParameter param = GetParameter();
+            parameters.Add(param);
+            param.ParameterName = String.Format(GetParameterFormat(), "PROJECTID");
+            param.Value = projectId;
+            IDbDataParameter sqlCommandParam = GetParameter();
+            parameters.Add(sqlCommandParam);
+            sqlCommandParam.ParameterName = String.Format(GetParameterFormat(), "SQLCOMMAND");
+            sqlCommandParam.Value = sqlCommand;
+
             // get all matching issue ids for current filter settings
             string sql = "SELECT issues.id, issues.created_on, issues.status_id FROM issues"
-                       + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + "";
-            dtIssueIds = GetDataTable(sql);
+                       + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + " " + String.Format(GetParameterFormat(), "SQLCOMMAND") + "";
+            dtIssueIds = GetDataTable(sql, parameters.ToArray<IDbDataParameter>());
 
             // get default status for a ticket
             sql = "SELECT issue_statuses.id FROM issue_statuses WHERE issue_statuses.is_default = '1'";
@@ -357,7 +387,14 @@ namespace combit.RedmineReports
             return theGiantHistory;
         }
 
-        public abstract DataTable GetDataTable(string sql);
+        public DataTable GetDataTable(string sql)
+        {
+            return GetDataTable(sql, null);
+        }
+
+        public abstract DataTable GetDataTable(string sql, IDbDataParameter[] parameters);
+        public abstract IDbDataParameter GetParameter();
+        public abstract String GetParameterFormat();
 
         public string GetRedmineHostName()
         {
@@ -380,8 +417,16 @@ namespace combit.RedmineReports
         public DataView GetVersions(string projectID)
         {
             // SQL Query on Versions
-            string sqlProject = "SELECT versions.name, versions.id, versions.project_id FROM versions WHERE versions.project_id = '" + projectID + "'";
-            DataTable dtVersions = GetDataTable(sqlProject);
+            string sqlProject = "SELECT versions.name, versions.id, versions.project_id FROM versions WHERE versions.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + "";
+            
+            // create parameters
+            List<IDbDataParameter> parameters = new List<IDbDataParameter>();
+            IDbDataParameter param = GetParameter();
+            parameters.Add(param);
+            param.ParameterName = String.Format(GetParameterFormat(), "PROJECTID");
+            param.Value = projectID;
+            
+            DataTable dtVersions = GetDataTable(sqlProject, parameters.ToArray<IDbDataParameter>());
             DataView dvVersions = new DataView(dtVersions);
             dvVersions.Sort = "name ASC";
             return dvVersions;
@@ -389,13 +434,31 @@ namespace combit.RedmineReports
 
         public string GetRedmineProjectName(string projectId)
         {
-            DataTable dtProjectname = GetDataTable("SELECT projects.name FROM projects WHERE id = " + projectId + "");
+            string sql = "SELECT projects.name FROM projects WHERE id = " + String.Format(GetParameterFormat(), "PROJECTID") + "";
+            
+            
+            // create parameter
+            List<IDbDataParameter> parameters = new List<IDbDataParameter>();
+            IDbDataParameter param = GetParameter();
+            parameters.Add(param);
+            param.ParameterName = String.Format(GetParameterFormat(), "PROJECTID");
+            param.Value = projectId;
+
+            DataTable dtProjectname = GetDataTable(sql, parameters.ToArray<IDbDataParameter>());
+            
             return dtProjectname.Rows[0].ItemArray[0].ToString();
         }
 
         public string GetRedmineVersionName(string id)
         {
-            DataTable dtVersionname = GetDataTable("SELECT versions.name FROM versions WHERE id =" + id);
+            // create parameter
+            List<IDbDataParameter> parameters = new List<IDbDataParameter>();
+            IDbDataParameter param = GetParameter();
+            parameters.Add(param);
+            param.ParameterName = String.Format(GetParameterFormat(), "ID");
+            param.Value = id;
+
+            DataTable dtVersionname = GetDataTable("SELECT versions.name FROM versions WHERE id =" + String.Format(GetParameterFormat(), "ID"));
             return dtVersionname.Rows[0].ItemArray[0].ToString();
         }
 
