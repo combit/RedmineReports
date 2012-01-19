@@ -11,6 +11,7 @@ using System.IO;
 using System.Configuration;
 using System.Data.Common;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 
 namespace combit.RedmineReports
@@ -46,6 +47,10 @@ namespace combit.RedmineReports
             {
                 MessageBox.Show(ex.Message);
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + ex.StackTrace);
+            }
         }
 
         private void InitDataSource()
@@ -58,17 +63,21 @@ namespace combit.RedmineReports
 
                 ListBox.SelectedIndexCollection listIndex = lboxVersion.SelectedIndices;
                 string sqlCommand = "";
-                int i = 0;
-                foreach (int index in listIndex)
-                {
-                    DataRowView drItem = (DataRowView)lboxVersion.Items[index];
-                    if (i == 0)
-                        sqlCommand += " AND (issues.fixed_version_id = " + drItem["id"].ToString();
-                    else
-                        sqlCommand += " OR issues.fixed_version_id = " + drItem["id"].ToString();
-                    i++;
+                
+                if (listIndex.Count < 0)
+                {    
+                    int i = 0;
+                    foreach (int index in listIndex)
+                    {
+                        DataRowView drItem = (DataRowView)lboxVersion.Items[index];
+                        if (i == 0)
+                            sqlCommand += " AND (issues.fixed_version_id = " + drItem["id"].ToString();
+                        else
+                            sqlCommand += " OR issues.fixed_version_id = " + drItem["id"].ToString();
+                        i++;
+                    }
+                    sqlCommand += ")";
                 }
-                sqlCommand += ")";
 
                 //get redmine project name
                 LL.Variables.Add("Redmine.ProjectName", _dataAccess.GetRedmineProjectName(projectId));
@@ -79,9 +88,13 @@ namespace combit.RedmineReports
                     DataRowView drItem = (DataRowView)lboxVersion.Items[lboxVersion.SelectedIndex];
                     LL.Variables.Add("Redmine.VersionName", drItem["name"].ToString());
                 }
-                else
+                else if (lboxVersion.SelectedIndices.Count > 1)
                 {
                     LL.Variables.Add("Redmine.VersionName", "Multiple Versions");
+                }
+                else
+                {
+                    LL.Variables.Add("Redmine.VersionName", String.Empty);
                 }
 
                 // get the redmine url
@@ -93,11 +106,11 @@ namespace combit.RedmineReports
             }
             catch (DbException ex)
             {
-                MessageBox.Show(ex.Message, ex.StackTrace);
+                MessageBox.Show(ex.Message + ex.StackTrace);
             }
             catch (ListLabelException ex)
             {
-                MessageBox.Show(ex.Message, ex.StackTrace);
+                MessageBox.Show(ex.Message + ex.StackTrace);
             }
         }
 
@@ -109,12 +122,15 @@ namespace combit.RedmineReports
             {
                 LL = new ListLabel();
                 // Add your License Key
-                LL.LicensingInfo = "";
+                LL.LicensingInfo = "Insert license key here";
 
                 // fill project combobox
-                 cmbProject.DataSource = _dataAccess.GetRedmineProjects(Convert.ToBoolean(ConfigurationManager.AppSettings["UseAllProjects"]));
-                cmbProject.DisplayMember = "name";
+                cmbProject.DataSource = _dataAccess.GetRedmineProjects(Convert.ToBoolean(ConfigurationManager.AppSettings["UseAllProjects"]));
+                cmbProject.DisplayMember = "display_name";
                 cmbProject.ValueMember = "id";
+
+                // check or uncheck checkbox for subprojects
+                cbAllProjects.Checked = Convert.ToBoolean(ConfigurationManager.AppSettings["UseAllProjects"]);
 
                 DesignerFunction fct = new DesignerFunction();
                 fct.FunctionName = "GetStatusNameFromId";
@@ -222,6 +238,11 @@ namespace combit.RedmineReports
                 source.AppendText(text.Substring(0, text.Length - 1));
             }
             source.TextChanged += this.tbStartDate_TextChanged;
+        }
+
+        private void cbAllProjects_CheckedChanged(object sender, EventArgs e)
+        {
+            cmbProject.DataSource = _dataAccess.GetRedmineProjects(cbAllProjects.Checked);
         }
     }
 }
