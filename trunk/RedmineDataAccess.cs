@@ -405,13 +405,21 @@ namespace combit.RedmineReports
 
         public DataTable GetRedmineProjects(bool UseAllProjects)
         {
-            string sqlProject = "SELECT id, name FROM projects";
+            string sqlProject = "SELECT id, name, parent_id FROM projects";
             if (!UseAllProjects)
             {
                 sqlProject += " WHERE parent_id IS null"; 
             }
 
-            return GetDataTable(sqlProject);
+            DataTable projectTable = GetDataTable(sqlProject); 
+            projectTable.Columns.Add(new DataColumn("display_name",typeof(string)));
+
+            foreach (DataRow dr in projectTable.Rows)
+            {
+                dr["display_name"] = ((dr["parent_id"]==System.DBNull.Value) ? dr["name"] : String.Concat("\x2022 ", dr["name"]));
+            }
+
+            return projectTable;
         }
 
         public DataView GetVersions(string projectID)
