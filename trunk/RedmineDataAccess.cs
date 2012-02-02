@@ -364,7 +364,7 @@ namespace combit.RedmineReports
                                 closedCounter += issueCounts[statusId];
                             else
                             {
-                                if ((int)dr["default_done_ratio"] == 100)
+                                if ((dr["default_done_ratio"] != System.DBNull.Value) && ((int)dr["default_done_ratio"] == 100))
                                 {
                                     solvedCounter += issueCounts[statusId];
                                 }
