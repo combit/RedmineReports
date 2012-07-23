@@ -64,7 +64,7 @@ namespace combit.RedmineReports
                 ListBox.SelectedIndexCollection listIndex = lboxVersion.SelectedIndices;
                 string sqlCommand = "";
                 
-                if (listIndex.Count < 0)
+                if (listIndex.Count > 0)
                 {    
                     int i = 0;
                     foreach (int index in listIndex)
@@ -144,6 +144,10 @@ namespace combit.RedmineReports
 
             }
             catch (NullReferenceException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
