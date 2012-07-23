@@ -196,17 +196,14 @@ namespace combit.RedmineReports
             // create parameters
             List<IDbDataParameter> parameters = new List<IDbDataParameter>();
             IDbDataParameter param = GetParameter();
-            parameters.Add(param);
             param.ParameterName = String.Format(GetParameterFormat(), "PROJECTID");
             param.Value = projectId;
-            IDbDataParameter sqlCommandParam = GetParameter();
-            parameters.Add(sqlCommandParam);
-            sqlCommandParam.ParameterName = String.Format(GetParameterFormat(), "SQLCOMMAND");
-            sqlCommandParam.Value = sqlCommand;
+            parameters.Add(param);
 
             // get all matching issue ids for current filter settings
             string sql = "SELECT issues.id, issues.created_on, issues.status_id FROM issues"
-                       + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + " " + String.Format(GetParameterFormat(), "SQLCOMMAND") + "";
+                       + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + sqlCommand;
+
             dtIssueIds = GetDataTable(sql, parameters.ToArray<IDbDataParameter>());
 
             // get default status for a ticket
@@ -399,8 +396,12 @@ namespace combit.RedmineReports
         public string GetRedmineHostName()
         {
             DataTable dtHostName = GetDataTable("SELECT settings.value AS HostName FROM settings WHERE settings.name = 'host_name'");
-            DataRow drHostName = dtHostName.Rows[0];
-            return drHostName["HostName"].ToString();  
+            if (dtHostName.Rows.Count > 0)
+            {
+                DataRow drHostName = dtHostName.Rows[0];
+                return drHostName["HostName"].ToString();
+            }
+            return "Undefined";
         }
 
         public DataTable GetRedmineProjects(bool UseAllProjects)
