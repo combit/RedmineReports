@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using combit.ListLabel17.DataProviders;
-using combit.ListLabel17;
+using combit.ListLabel18.DataProviders;
+using combit.ListLabel18;
 using System.Data;
 using System.Windows.Forms;
 using System.Configuration;
