@@ -29,6 +29,8 @@ namespace combit.RedmineReports
                 Environment.Exit(-1);
             }   
             _dataAccess = new RedmineMySqlDataAccess();
+            dtpToDate.Text = DateTime.Now.ToShortDateString();
+            dtpFromDate.Text = (DateTime.Now.Day - 7).ToString() + "." + DateTime.Now.Month + "." + DateTime.Now.Year;
         }
 
         private void btnDesign_Click(object sender, EventArgs e)
@@ -102,7 +104,10 @@ namespace combit.RedmineReports
 
                 int startDate = Convert.ToInt32(tbStartDate.Text.ToString());
 
-                LL.DataSource = _dataAccess.GetRedmineData(projectId, sqlCommand, startDate);
+                if (rbDateRange.Checked)
+                    LL.DataSource = _dataAccess.GetRedmineData(projectId, sqlCommand, Convert.ToDateTime(dtpFromDate.Text), Convert.ToDateTime(dtpToDate.Text));
+                else if (rbTimespan.Checked)
+                    LL.DataSource = _dataAccess.GetRedmineData(projectId, sqlCommand, startDate);
             }
             catch (DbException ex)
             {
@@ -247,6 +252,38 @@ namespace combit.RedmineReports
         private void cbAllProjects_CheckedChanged(object sender, EventArgs e)
         {
             cmbProject.DataSource = _dataAccess.GetRedmineProjects(cbAllProjects.Checked);
+        }
+
+        private void tbFromDate_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (((Keys)e.KeyChar) == Keys.Back || ((int)e.KeyChar) == 46)
+                return;
+            if (!System.Text.RegularExpressions.Regex.IsMatch(e.KeyChar.ToString(), "\\d+"))
+                e.Handled = true;
+        }
+
+        private void tbToDate_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (((Keys)e.KeyChar) == Keys.Back || ((int)e.KeyChar) == 46)
+                return;
+            if (!System.Text.RegularExpressions.Regex.IsMatch(e.KeyChar.ToString(), "\\d+"))
+                e.Handled = true;
+        }
+
+        private void rbTimespan_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbTimespan.Checked)
+            {
+                tbStartDate.Enabled = true;
+                dtpFromDate.Enabled = false;
+                dtpToDate.Enabled = false;
+            }
+            else if (rbDateRange.Checked)
+            {
+                dtpFromDate.Enabled = true;
+                dtpToDate.Enabled = true;
+                tbStartDate.Enabled = false;
+            }
         }
     }
 }
