@@ -32,7 +32,7 @@ namespace combit.RedmineReports
                             + " INNER JOIN users u1 ON issues.author_id = u1.id"
                             + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
                             + " INNER JOIN projects ON issues.project_id = projects.id"
-                            + " INNER JOIN versions ON issues.fixed_version_id = versions.id"
+                            + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
                             + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
                             + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
                             + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + "";
@@ -43,7 +43,7 @@ namespace combit.RedmineReports
                             + " INNER JOIN users u1 ON issues.author_id = u1.id"
                             + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
                             + " INNER JOIN projects ON issues.project_id = projects.id"
-                            + " INNER JOIN versions ON issues.fixed_version_id = versions.id"
+                            + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
                             + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
                             + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
                             + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio != '100'";
@@ -59,7 +59,7 @@ namespace combit.RedmineReports
                             + " INNER JOIN users u1 ON issues.author_id = u1.id"
                             + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
                             + " INNER JOIN projects ON issues.project_id = projects.id"
-                            + " INNER JOIN versions ON issues.fixed_version_id = versions.id"
+                            + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
                             + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
                             + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
                             + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio = '100'";
@@ -85,7 +85,7 @@ namespace combit.RedmineReports
                             + " INNER JOIN users u1 ON issues.author_id = u1.id"
                             + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
                             + " INNER JOIN projects ON issues.project_id = projects.id"
-                            + " INNER JOIN versions ON issues.fixed_version_id = versions.id"
+                            + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
                             + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
                             + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
                             + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + "";
@@ -96,7 +96,7 @@ namespace combit.RedmineReports
                             + " INNER JOIN users u1 ON issues.author_id = u1.id"
                             + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
                             + " INNER JOIN projects ON issues.project_id = projects.id"
-                            + " INNER JOIN versions ON issues.fixed_version_id = versions.id"
+                            + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
                             + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
                             + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
                             + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio != '100'";
@@ -112,7 +112,7 @@ namespace combit.RedmineReports
                             + " INNER JOIN users u1 ON issues.author_id = u1.id"
                             + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
                             + " INNER JOIN projects ON issues.project_id = projects.id"
-                            + " INNER JOIN versions ON issues.fixed_version_id = versions.id"
+                            + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
                             + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
                             + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
                             + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio = '100'";
@@ -321,7 +321,7 @@ namespace combit.RedmineReports
             theGiantHistory.Columns.Add(changedIssues);
 
             // now loop through history
-            int startDate = toDate.Day - fromDate.Day;
+            int startDate = (int)((toDate - fromDate).TotalHours/24);
             for (int days = -startDate; days <= 0; days++)
             {
                 DateTime currentDay = toDate.AddDays(days);

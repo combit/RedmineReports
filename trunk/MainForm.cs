@@ -22,15 +22,22 @@ namespace combit.RedmineReports
         RedmineMySqlDataAccess _dataAccess;
         public RedmineReportsForm()
         {
-            InitializeComponent();
-            if (ConfigurationManager.ConnectionStrings["combit.RedmineReports.Properties.Settings.RedmineConnectionString"].ConnectionString.Contains("server=IP"))
+            try
             {
-                MessageBox.Show("Please edit your 'RedmineReports.exe.config' in the \\bin folder and add a ConnectionString to your redmine database.\n If you want to print all projects use 'UseAllProjects = True' otherwise use 'UseAllProjects = False'", "Redmine Reports");
-                Environment.Exit(-1);
-            }   
-            _dataAccess = new RedmineMySqlDataAccess();
+                InitializeComponent();
+                if (ConfigurationManager.ConnectionStrings["combit.RedmineReports.Properties.Settings.RedmineConnectionString"].ConnectionString.Contains("server=IP"))
+                {
+                    MessageBox.Show("Please edit your 'RedmineReports.exe.config' in the \\bin folder and add a ConnectionString to your redmine database.\n If you want to print all projects use 'UseAllProjects = True' otherwise use 'UseAllProjects = False'", "Redmine Reports");
+                    Environment.Exit(-1);
+                }
+                _dataAccess = new RedmineMySqlDataAccess();
             dtpToDate.Text = DateTime.Now.ToShortDateString();
-            dtpFromDate.Text = (DateTime.Now.Day - 7).ToString() + "." + DateTime.Now.Month + "." + DateTime.Now.Year;
+            dtpFromDate.Text = DateTime.Now.AddDays(-7).ToShortDateString();
+        }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + "\n\n" + ex.StackTrace);
+            }
         }
 
         private void btnDesign_Click(object sender, EventArgs e)
