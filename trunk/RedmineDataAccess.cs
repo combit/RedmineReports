@@ -1,13 +1,9 @@
-﻿using System;
+﻿using combit.ListLabel18.DataProviders;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
-using combit.ListLabel18.DataProviders;
-using combit.ListLabel18;
-using System.Data;
-using System.Windows.Forms;
-using System.Configuration;
-using System.Data.Common;
 
 
 namespace combit.RedmineReports
@@ -131,7 +127,7 @@ namespace combit.RedmineReports
             DataTable dtClosedIssueStatuses;
             DataTable dtClosedIssues;
             int i = 0;
-            string closedIssuesSqlCommand = "";
+            StringBuilder closedIssuesSqlCommand = new StringBuilder();
 
             String sql = "SELECT issue_statuses.id AS StatusID FROM issue_statuses WHERE issue_statuses.is_closed = '1'";
             dtClosedIssueStatuses = GetDataTable(sql);
@@ -140,16 +136,16 @@ namespace combit.RedmineReports
             {
                 
                 if (i == 0)
-                    closedIssuesSqlCommand += " AND (issues.status_id = " + dr["StatusID"].ToString();
+                    closedIssuesSqlCommand.Append(" AND (issues.status_id = " + dr["StatusID"].ToString());
                 else
-                    closedIssuesSqlCommand += " OR issues.status_id = " + dr["StatusID"].ToString();
+                    closedIssuesSqlCommand.Append(" OR issues.status_id = " + dr["StatusID"].ToString());
                 i++;
             }
-            closedIssuesSqlCommand += ")";
+            closedIssuesSqlCommand.Append(")");
 
             // get all issues of the selected project and version    
             sql = "SELECT issues.id, issues.created_on, issues.updated_on FROM issues"
-                      + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + " " + String.Format(GetParameterFormat(), "SQLCOMMAND") + closedIssuesSqlCommand + "";
+                      + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + " " + String.Format(GetParameterFormat(), "SQLCOMMAND") + closedIssuesSqlCommand.ToString() + "";
 
             // create parameters
             List<IDbDataParameter> parameters = new List<IDbDataParameter>();
@@ -256,9 +252,6 @@ namespace combit.RedmineReports
             // object to hold the history table per id
             Dictionary<int, DataTable> historyTable = new Dictionary<int, DataTable>();
 
-            DataTable dtIssueIds;
-            DataTable dtDefaultStatus;
-
             // create parameters
             List<IDbDataParameter> parameters = new List<IDbDataParameter>();
             IDbDataParameter param = GetParameter();
@@ -270,11 +263,11 @@ namespace combit.RedmineReports
             string sql = "SELECT issues.id, issues.created_on, issues.status_id FROM issues"
                        + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + sqlCommand;
 
-            dtIssueIds = GetDataTable(sql, parameters.ToArray<IDbDataParameter>());
+            DataTable dtIssueIds = GetDataTable(sql, parameters.ToArray<IDbDataParameter>());
 
             // get default status for a ticket
             sql = "SELECT issue_statuses.id FROM issue_statuses WHERE issue_statuses.is_default = '1'";
-            dtDefaultStatus = GetDataTable(sql);
+            DataTable dtDefaultStatus = GetDataTable(sql);
             DataRow drDefaultStatus = dtDefaultStatus.Rows[0];
 
             // get the default status for a new ticket
@@ -740,17 +733,17 @@ namespace combit.RedmineReports
         private DataTable CreateIssueHistoryTable(int issueId)
         {
             // SQL command on the right versions
-            string sqlProject = "SELECT issues.id AS Issue_ID, issues.created_on AS Startdate, journals.created_on AS Enddate, journal_details.value AS Status"
-                                + " FROM issues"
-                                + " INNER JOIN journals ON issues.id = journals.journalized_id"
-                                + " INNER JOIN journal_details ON journals.id = journal_details.journal_id"
-                                + " WHERE issues.id = journals.journalized_id AND journal_details.prop_key = 'status_id' AND issues.id = '" + issueId.ToString() + "'";
+            string sqlProject = @"SELECT issues.id AS Issue_ID, issues.created_on AS Startdate, journals.created_on AS Enddate, journal_details.value AS Status 
+                                 FROM issues 
+                                 INNER JOIN journals ON issues.id = journals.journalized_id 
+                                 INNER JOIN journal_details ON journals.id = journal_details.journal_id 
+                                 WHERE issues.id = journals.journalized_id AND journal_details.prop_key = 'status_id' AND issues.id = '" + issueId.ToString() + "'";
             return GetDataTable(sqlProject);
         }
 
         public string GetStatusNameFromId(int id)
         {
-            string sql = "SELECT issue_statuses.name FROM issue_statuses WHERE id = '" + id + "'";
+            string sql = String.Format("SELECT issue_statuses.name FROM issue_statuses WHERE id = '{0}'", id);
             DataTable dtId = GetDataTable(sql);
 
             DataRow dr = dtId.Rows[0];

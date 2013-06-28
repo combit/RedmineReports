@@ -48,9 +48,13 @@
             this.rbDateRange = new System.Windows.Forms.RadioButton();
             this.dtpFromDate = new System.Windows.Forms.DateTimePicker();
             this.dtpToDate = new System.Windows.Forms.DateTimePicker();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.configurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.redmineDBToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             btnPrint = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox1.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnPrint
@@ -58,7 +62,7 @@
             resources.ApplyResources(btnPrint, "btnPrint");
             btnPrint.Name = "btnPrint";
             btnPrint.UseVisualStyleBackColor = true;
-            btnPrint.Click += new System.EventHandler(this.button1_Click);
+            btnPrint.Click += new System.EventHandler(this.btnPrint_Click);
             // 
             // Label2
             // 
@@ -156,6 +160,26 @@
             this.dtpToDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.dtpToDate.Name = "dtpToDate";
             // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.configurationToolStripMenuItem});
+            resources.ApplyResources(this.menuStrip1, "menuStrip1");
+            this.menuStrip1.Name = "menuStrip1";
+            // 
+            // configurationToolStripMenuItem
+            // 
+            this.configurationToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.redmineDBToolStripMenuItem});
+            this.configurationToolStripMenuItem.Name = "configurationToolStripMenuItem";
+            resources.ApplyResources(this.configurationToolStripMenuItem, "configurationToolStripMenuItem");
+            // 
+            // redmineDBToolStripMenuItem
+            // 
+            this.redmineDBToolStripMenuItem.Name = "redmineDBToolStripMenuItem";
+            resources.ApplyResources(this.redmineDBToolStripMenuItem, "redmineDBToolStripMenuItem");
+            this.redmineDBToolStripMenuItem.Click += new System.EventHandler(this.redmineDBToolStripMenuItem_Click);
+            // 
             // RedmineReportsForm
             // 
             resources.ApplyResources(this, "$this");
@@ -173,12 +197,17 @@
             this.Controls.Add(this.lboxVersion);
             this.Controls.Add(this.Label2);
             this.Controls.Add(this.btnDesign);
+            this.Controls.Add(this.menuStrip1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "RedmineReportsForm";
-            this.Load += new System.EventHandler(this.Form1_Load);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -200,6 +229,9 @@
         private System.Windows.Forms.RadioButton rbDateRange;
         private System.Windows.Forms.DateTimePicker dtpFromDate;
         private System.Windows.Forms.DateTimePicker dtpToDate;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem configurationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem redmineDBToolStripMenuItem;
     }
 }
 
