@@ -1,23 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
+using System;
+using System.Configuration;
 using System.Data;
 using System.Windows.Forms;
-using System.Configuration;
-using System.Data.Common;
 
 
 namespace combit.RedmineReports
 {
     sealed class RedmineMySqlDataAccess : RedmineDataAccessBase
     {
-        public RedmineMySqlDataAccess()
+        public RedmineMySqlDataAccess() : this(null) { }
+        public RedmineMySqlDataAccess(string ConnectionString, bool isPlain)
         {
             // create connection
             _connection = new MySqlConnection();
-            _connection.ConnectionString = ConfigurationManager.ConnectionStrings["combit.RedmineReports.Properties.Settings.RedmineConnectionString"].ConnectionString;
+            if (ConnectionString == null)
+            {
+                _connection.ConnectionString = ConfigurationManager.ConnectionStrings["combit.RedmineReports.Properties.Settings.RedmineConnectionString"].ConnectionString;
+            }
+            else
+            {
+                _connection.ConnectionString = ConnectionString;
+            }
+
+            try
+            {
+                _connection.Open();
+            }
+            catch (MySqlException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        public RedmineMySqlDataAccess(string ConnectionString)
+        {
+            // create connection
+            _connection = new MySqlConnection();
+            if (String.IsNullOrEmpty(ConnectionString))
+            {
+                string convertString = ConfigurationManager.ConnectionStrings["combit.RedmineReports.Properties.Settings.RedmineConnectionString"].ConnectionString;
+                //decrypt connectionstring
+                _connection.ConnectionString = RedmineReportsConfigDataHelper.DecryptData(convertString);
+            }
+            else
+            {
+                _connection.ConnectionString = ConnectionString;
+            }
+            
             try
             {
                 _connection.Open();
