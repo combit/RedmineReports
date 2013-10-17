@@ -59,13 +59,13 @@
     </StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="combit.ListLabel18, Version=18.3.4862.22070, Culture=neutral, PublicKeyToken=a7a30592cb4a94be, processorArchitecture=MSIL">
+    <Reference Include="combit.ListLabel19">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Program Files (x86)\combit\LL18\Programmierbare Beispiele und Deklarationen\Microsoft .NET\combit.ListLabel18.dll</HintPath>
+      <HintPath>combit.ListLabel19.dll</HintPath>
     </Reference>
-    <Reference Include="MySql.Data, Version=6.6.5.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+    <Reference Include="MySql.Data">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Program Files (x86)\MySQL\MySQL Connector Net 6.6.5\Assemblies\v4.0\MySql.Data.dll</HintPath>
+      <HintPath>MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
