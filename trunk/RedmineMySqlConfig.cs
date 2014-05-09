@@ -29,11 +29,12 @@ namespace combit.RedmineReports
                 convertString =RedmineReportsConfigDataHelper.DecryptData(convertString);
             }
 
-            Match m = Regex.Match(convertString, "server=([^;]*);uid=([^;]*);pwd=([^;]*);database=([^;]*)");
+            Match m = Regex.Match(convertString, "server=([^;]*);uid=([^;]*);pwd=([^;]*);database=([^;]*);port=([^;]*);");
             ipAddressTextBox.Text = m.Groups[1].Value;
             mySQLLogTextBox.Text = m.Groups[2].Value;
             mySQLPasssTextBox.Text = m.Groups[3].Value;
             dbNameTextBox.Text = m.Groups[4].Value;
+            mySqlPortTextBox.Text = m.Groups[5].Value;
         }
 
         private void checkConfButton_Click(object sender, EventArgs e)
@@ -42,9 +43,9 @@ namespace combit.RedmineReports
             {
                 checkConfButton.Text = "Stop";
                 pictureBox1.Visible = true;
-                var args = Tuple.Create<string, string, string, string, bool>
+                var args = Tuple.Create<string, string, string, string,string, bool>
                     (ipAddressTextBox.Text, mySQLLogTextBox.Text, mySQLPasssTextBox.Text,
-                    dbNameTextBox.Text, encryptData.Checked);
+                    dbNameTextBox.Text, mySqlPortTextBox.Text, encryptData.Checked);
                 backgroundWorker1.RunWorkerAsync(args);
               
             }
@@ -56,11 +57,11 @@ namespace combit.RedmineReports
 
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
-            Tuple<string, string, string, string, bool> args = e.Argument as Tuple<string, string, string, string, bool>;
+            Tuple<string, string, string, string, string, bool> args = e.Argument as Tuple<string, string, string, string, string, bool>;
             // create connection
             IDbConnection _connection = new MySqlConnection();
-            _connection.ConnectionString = string.Format("server={0};uid={1};pwd={2};database={3}",
-                args.Item1, args.Item2, args.Item3, args.Item4);
+            _connection.ConnectionString = string.Format("server={0};uid={1};pwd={2};database={3};port={4};",
+                args.Item1, args.Item2, args.Item3, args.Item4, args.Item5);
             try
             {
                 _connection.Open();
@@ -106,9 +107,9 @@ namespace combit.RedmineReports
             Configuration config = ConfigurationManager.OpenExeConfiguration("RedmineReports.exe");
             ConnectionStringsSection connectionStringsSection = (ConnectionStringsSection)config.GetSection("connectionStrings");
             string convertString = connectionStringsSection.ConnectionStrings["combit.RedmineReports.Properties.Settings.RedmineConnectionString"].ConnectionString =
-                string.Format("server={0};uid={1};pwd={2};database={3}",
+                string.Format("server={0};uid={1};pwd={2};database={3};port={4};",
                     ipAddressTextBox.Text, mySQLLogTextBox.Text, mySQLPasssTextBox.Text,
-                    dbNameTextBox.Text);
+                    dbNameTextBox.Text, mySqlPortTextBox.Text);
             if (encryptData.Checked)
             {
                //encrpyt connectionstring
@@ -122,9 +123,9 @@ namespace combit.RedmineReports
             config.Save();
             ConfigurationManager.RefreshSection("connectionStrings");
             saveButton.Enabled = false;
-            redmineReportsForm.reloadCmb(string.Format("server={0};uid={1};pwd={2};database={3}",
+            redmineReportsForm.reloadCmb(string.Format("server={0};uid={1};pwd={2};database={3};port={4};",
                     ipAddressTextBox.Text, mySQLLogTextBox.Text, mySQLPasssTextBox.Text,
-                    dbNameTextBox.Text));
+                    dbNameTextBox.Text, mySqlPortTextBox.Text));
 
             Close();
         }

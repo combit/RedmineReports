@@ -46,6 +46,8 @@
             this.saveButton = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.cancelButton = new System.Windows.Forms.Button();
+            this.mySqlPortTextBox = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -59,7 +61,7 @@
             this.groupBox1.Controls.Add(this.tableLayoutPanel1);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(470, 169);
+            this.groupBox1.Size = new System.Drawing.Size(470, 308);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Type Redmine MySQL configuration";
@@ -69,7 +71,7 @@
             this.tableLayoutPanel1.ColumnCount = 2;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel1.Controls.Add(this.label5, 0, 5);
+            this.tableLayoutPanel1.Controls.Add(this.label5, 0, 6);
             this.tableLayoutPanel1.Controls.Add(this.label4, 0, 4);
             this.tableLayoutPanel1.Controls.Add(this.label3, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 2);
@@ -77,24 +79,27 @@
             this.tableLayoutPanel1.Controls.Add(this.mySQLPasssTextBox, 1, 3);
             this.tableLayoutPanel1.Controls.Add(this.mySQLLogTextBox, 1, 2);
             this.tableLayoutPanel1.Controls.Add(this.dbNameTextBox, 1, 4);
-            this.tableLayoutPanel1.Controls.Add(this.encryptData, 1, 5);
+            this.tableLayoutPanel1.Controls.Add(this.encryptData, 1, 6);
             this.tableLayoutPanel1.Controls.Add(this.ipAddressTextBox, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.mySqlPortTextBox, 1, 5);
+            this.tableLayoutPanel1.Controls.Add(this.label7, 0, 5);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(6, 19);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 6;
+            this.tableLayoutPanel1.RowCount = 7;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(454, 135);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(454, 233);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(3, 110);
+            this.label5.Location = new System.Drawing.Point(3, 136);
             this.label5.Margin = new System.Windows.Forms.Padding(3, 6, 3, 6);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(107, 13);
@@ -174,7 +179,7 @@
             // encryptData
             // 
             this.encryptData.AutoSize = true;
-            this.encryptData.Location = new System.Drawing.Point(119, 110);
+            this.encryptData.Location = new System.Drawing.Point(119, 136);
             this.encryptData.Margin = new System.Windows.Forms.Padding(6);
             this.encryptData.Name = "encryptData";
             this.encryptData.Size = new System.Drawing.Size(15, 14);
@@ -194,7 +199,7 @@
             // checkConfButton
             // 
             this.checkConfButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.checkConfButton.Location = new System.Drawing.Point(246, 189);
+            this.checkConfButton.Location = new System.Drawing.Point(246, 328);
             this.checkConfButton.Name = "checkConfButton";
             this.checkConfButton.Size = new System.Drawing.Size(91, 23);
             this.checkConfButton.TabIndex = 0;
@@ -208,7 +213,7 @@
             this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
             this.pictureBox1.InitialImage = null;
-            this.pictureBox1.Location = new System.Drawing.Point(218, 187);
+            this.pictureBox1.Location = new System.Drawing.Point(218, 326);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(10, 15, 3, 3);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(22, 25);
@@ -220,7 +225,7 @@
             // 
             this.saveButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.saveButton.Enabled = false;
-            this.saveButton.Location = new System.Drawing.Point(413, 189);
+            this.saveButton.Location = new System.Drawing.Point(413, 328);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(67, 23);
             this.saveButton.TabIndex = 1;
@@ -237,7 +242,7 @@
             // cancelButton
             // 
             this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.cancelButton.Location = new System.Drawing.Point(343, 189);
+            this.cancelButton.Location = new System.Drawing.Point(343, 328);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(66, 23);
             this.cancelButton.TabIndex = 4;
@@ -245,12 +250,29 @@
             this.cancelButton.UseVisualStyleBackColor = true;
             this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click_1);
             // 
+            // mySqlPortTextBox
+            // 
+            this.mySqlPortTextBox.Location = new System.Drawing.Point(116, 107);
+            this.mySqlPortTextBox.Name = "mySqlPortTextBox";
+            this.mySqlPortTextBox.Size = new System.Drawing.Size(335, 20);
+            this.mySqlPortTextBox.TabIndex = 16;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(3, 110);
+            this.label7.Margin = new System.Windows.Forms.Padding(3, 6, 3, 6);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(64, 13);
+            this.label7.TabIndex = 17;
+            this.label7.Text = "MySQL Port";
+            // 
             // RedmineMySqlConfig
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(492, 227);
+            this.ClientSize = new System.Drawing.Size(492, 366);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.checkConfButton);
             this.Controls.Add(this.saveButton);
@@ -286,5 +308,7 @@
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.Button saveButton;
         private System.Windows.Forms.Button cancelButton;
+        private System.Windows.Forms.TextBox mySqlPortTextBox;
+        private System.Windows.Forms.Label label7;
     }
 }
