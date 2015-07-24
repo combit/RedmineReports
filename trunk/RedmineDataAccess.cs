@@ -1,4 +1,4 @@
-﻿using combit.ListLabel19.DataProviders;
+﻿using combit.ListLabel20.DataProviders;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -16,14 +16,14 @@ namespace combit.RedmineReports
         {
         }
 
-        public DataProviderCollection GetRedmineData(string projectId, string sqlCommand, int startDate)
+        public DataProviderCollection GetRedmineData(string projectId, string sqlCommand, int startDate, string trackerIDs)
         {
             DataProviderCollection collection = new DataProviderCollection();
             DbCommandSetDataProvider provider = new DbCommandSetDataProvider();
             provider.MinimalSelect = false;
             IDbCommand cmd = _connection.CreateCommand();
 
-            cmd.CommandText = "SELECT issues.id AS IssueID, issues.subject AS IssueName, issue_statuses.name AS IssueStatus, u1.login AS LoginName, u1.firstname AS FirstName, u1.lastname AS LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, issue_categories.name AS Category"
+            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject AS IssueName, issue_statuses.name AS IssueStatus, u1.login AS LoginName, u1.status AS LoginNameStatus , u1.firstname AS FirstName, u1.lastname AS LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
                             + " FROM (issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id)"
                             + " INNER JOIN users u1 ON issues.author_id = u1.id"
                             + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
@@ -31,10 +31,10 @@ namespace combit.RedmineReports
                             + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
                             + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
                             + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
-                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + "";
+                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " and issues.tracker_id IN(" + trackerIDs + ")";
             provider.AddCommand(cmd, "Issues", "`{0}`", "?{0}");
 
-            cmd.CommandText = "SELECT issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, issue_categories.name AS Category"
+            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.status AS LoginNameStatus, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
                             + " FROM (issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id)"
                             + " INNER JOIN users u1 ON issues.author_id = u1.id"
                             + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
@@ -42,15 +42,16 @@ namespace combit.RedmineReports
                             + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
                             + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
                             + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
-                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio != '100'";
+                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio != '100' and issues.tracker_id IN(" + trackerIDs + ")";
+
             provider.AddCommand(cmd, "OpenIssues", "`{0}`", "?{0}");
 
-            cmd.CommandText = "SELECT Count(status_id) AS Count, issue_statuses.name AS StatusName"
+            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, Count(status_id) AS Count, issue_statuses.name AS StatusName"
                             + " FROM issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id"
-                            + " WHERE issues.project_id = " + projectId + "" + sqlCommand + " GROUP BY status_id";
+                            + " WHERE issues.project_id = " + projectId + "" + sqlCommand + "and issues.tracker_id IN(" + trackerIDs + ") GROUP BY status_id";
             provider.AddCommand(cmd, "IssuesByStatus", "`{0}`", "?{0}");
 
-            cmd.CommandText = "SELECT issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, issue_categories.name AS Category"
+            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.status AS LoginNameStatus, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
                             + " FROM (issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id)"
                             + " INNER JOIN users u1 ON issues.author_id = u1.id"
                             + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
@@ -58,25 +59,27 @@ namespace combit.RedmineReports
                             + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
                             + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
                             + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
-                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio = '100'";
+                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio = '100'"
+                            + "and issues.tracker_id IN(" + trackerIDs + ")";
+
             provider.AddCommand(cmd, "FixedIssues", "`{0}`", "?{0}");
 
             provider.SupportSorting = true;
             collection.Add(provider);
-            collection.Add(new AdoDataProvider(CreateIssueHistory(projectId, sqlCommand, startDate)));
+            collection.Add(new AdoDataProvider(CreateIssueHistory(projectId, sqlCommand, startDate, trackerIDs)));
             collection.Add(new AdoDataProvider(CreateChangeSetTable(projectId, startDate)));
-            collection.Add(new AdoDataProvider(GetOpenTicketTimeSpan(projectId, sqlCommand)));
+            collection.Add(new AdoDataProvider(GetOpenTicketTimeSpan(projectId, sqlCommand, trackerIDs)));
             return collection;
         }
 
-        public DataProviderCollection GetRedmineData(string projectId, string sqlCommand, DateTime fromDate, DateTime toDate)
+        public DataProviderCollection GetRedmineData(string projectId, string sqlCommand, DateTime fromDate, DateTime toDate, string trackerIDs)
         {
             DataProviderCollection collection = new DataProviderCollection();
             DbCommandSetDataProvider provider = new DbCommandSetDataProvider();
             provider.MinimalSelect = false;
             IDbCommand cmd = _connection.CreateCommand();
 
-            cmd.CommandText = "SELECT issues.id AS IssueID, issues.subject AS IssueName, issue_statuses.name AS IssueStatus, u1.login AS LoginName, u1.firstname AS FirstName, u1.lastname AS LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, issue_categories.name AS Category"
+            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject AS IssueName, issue_statuses.name AS IssueStatus, u1.login AS LoginName, u1.status AS LoginNameStatus, u1.firstname AS FirstName, u1.lastname AS LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
                             + " FROM (issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id)"
                             + " INNER JOIN users u1 ON issues.author_id = u1.id"
                             + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
@@ -84,10 +87,10 @@ namespace combit.RedmineReports
                             + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
                             + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
                             + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
-                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + "";
+                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " and issues.tracker_id IN(" + trackerIDs + ")";
             provider.AddCommand(cmd, "Issues", "`{0}`", "?{0}");
 
-            cmd.CommandText = "SELECT issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, issue_categories.name AS Category"
+            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.status AS LoginNameStatus, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
                             + " FROM (issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id)"
                             + " INNER JOIN users u1 ON issues.author_id = u1.id"
                             + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
@@ -95,15 +98,16 @@ namespace combit.RedmineReports
                             + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
                             + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
                             + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
-                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio != '100'";
+                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio != '100' and issues.tracker_id IN(" + trackerIDs + ")";
+
             provider.AddCommand(cmd, "OpenIssues", "`{0}`", "?{0}");
 
-            cmd.CommandText = "SELECT Count(status_id) AS Count, issue_statuses.name AS StatusName"
+            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, Count(status_id) AS Count, issue_statuses.name AS StatusName"
                             + " FROM issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id"
-                            + " WHERE issues.project_id = " + projectId + "" + sqlCommand + " GROUP BY status_id";
+                            + " WHERE issues.project_id = " + projectId + "" + sqlCommand + "and issues.tracker_id IN(" + trackerIDs + ") GROUP BY status_id";
             provider.AddCommand(cmd, "IssuesByStatus", "`{0}`", "?{0}");
 
-            cmd.CommandText = "SELECT issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, issue_categories.name AS Category"
+            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.status AS LoginNameStatus, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
                             + " FROM (issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id)"
                             + " INNER JOIN users u1 ON issues.author_id = u1.id"
                             + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
@@ -111,18 +115,20 @@ namespace combit.RedmineReports
                             + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
                             + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
                             + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
-                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio = '100'";
+                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio = '100'" 
+                            + "and issues.tracker_id IN(" + trackerIDs + ")";
+
             provider.AddCommand(cmd, "FixedIssues", "`{0}`", "?{0}");
 
             provider.SupportSorting = true;
             collection.Add(provider);
-            collection.Add(new AdoDataProvider(CreateIssueHistory(projectId, sqlCommand, fromDate, toDate)));
+            collection.Add(new AdoDataProvider(CreateIssueHistory(projectId, sqlCommand, fromDate, toDate, trackerIDs)));
             collection.Add(new AdoDataProvider(CreateChangeSetTable(projectId, fromDate, toDate)));
-            collection.Add(new AdoDataProvider(GetOpenTicketTimeSpan(projectId, sqlCommand)));
+            collection.Add(new AdoDataProvider(GetOpenTicketTimeSpan(projectId, sqlCommand, trackerIDs)));
             return collection;
         }
 
-        private DataTable GetOpenTicketTimeSpan(string projectId, string sqlCommand)
+        private DataTable GetOpenTicketTimeSpan(string projectId, string sqlCommand, string trackerIds)
         {
             DataTable dtClosedIssueStatuses;
             DataTable dtClosedIssues;
@@ -144,8 +150,8 @@ namespace combit.RedmineReports
             closedIssuesSqlCommand.Append(")");
 
             // get all issues of the selected project and version    
-            sql = "SELECT issues.id, issues.created_on, issues.updated_on FROM issues"
-                      + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + " " + String.Format(GetParameterFormat(), "SQLCOMMAND") + closedIssuesSqlCommand.ToString() + "";
+            sql = "SELECT issues.tracker_id AS TrackerID, issues.id, issues.created_on, issues.updated_on FROM issues"
+                      + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + " " + String.Format(GetParameterFormat(), "SQLCOMMAND") + closedIssuesSqlCommand.ToString() + "" + "and issues.tracker_id IN(" + trackerIds + ")";
 
             // create parameters
             List<IDbDataParameter> parameters = new List<IDbDataParameter>();
@@ -200,18 +206,19 @@ namespace combit.RedmineReports
         private DataTable CreateChangeSetTable(string projectId, DateTime fromDate, DateTime toDate)
         {
             string fromFormatForDatabase = fromDate.ToString("yyyy-MM--dd");
-            string toFormatForDatabase = fromDate.ToString("yyyy-MM--dd");
+            string toFormatForDatabase = toDate.ToString("yyyy-MM--dd");
             string dateSQL = " AND changesets.commit_date >= '" + fromFormatForDatabase + "' AND changesets.commit_date <= '" + toFormatForDatabase + "'";
             return CreateChangeSetTable(projectId, dateSQL);
         }
 
         private DataTable CreateChangeSetTable(string projectId, string dateSQL)
         {
-            
+
             string sql = "SELECT repositories.id FROM repositories"
                        + " INNER JOIN projects ON projects.parent_id = " + String.Format(GetParameterFormat(), "PROJECTID")
                        + " WHERE repositories.project_id = projects.id"
-                       + " OR repositories.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + " ORDER BY id";
+                       + " OR repositories.project_id = " + String.Format(GetParameterFormat(), "PROJECTID")  
+                       + " ORDER BY id";
             
             List<IDbDataParameter> parameters = new List<IDbDataParameter>();
             IDbDataParameter param = GetParameter();
@@ -221,14 +228,16 @@ namespace combit.RedmineReports
 
             DataTable dtProjects = GetDataTable(sql, parameters.ToArray<IDbDataParameter>());
             DataTable dtChangeSets = new DataTable();
-            dtChangeSets.Columns.Add("committed_on", typeof(DateTime));
-            dtChangeSets.Columns.Add("committer");
-            dtChangeSets.Columns.Add("changes", typeof(int));
+            dtChangeSets.Columns.Add("Committed_on", typeof(DateTime));
+            dtChangeSets.Columns.Add("Committer");
+            dtChangeSets.Columns.Add("Changes", typeof(int));
+            dtChangeSets.Columns.Add("Committer_status");
 
             // loop trough each project
             foreach (DataRow project in dtProjects.Rows)
             {
-                sql = "SELECT changesets.id, changesets.committed_on, changesets.repository_id , changesets.committer FROM changesets WHERE changesets.repository_id = " + project[0].ToString() + dateSQL;
+                sql = "SELECT changesets.id, changesets.committed_on, changesets.repository_id , changesets.committer, users.status AS Committer_status FROM changesets"
+                +" INNER JOIN  users ON changesets.user_id = users.id WHERE changesets.repository_id = " + project[0].ToString() + dateSQL;
                 DataTable dtChangeSetsThisProject = GetDataTable(sql);
                 // loop trough each changeSet in project
                 foreach (DataRow changeSet in dtChangeSetsThisProject.Rows)
@@ -240,6 +249,7 @@ namespace combit.RedmineReports
                     rowForChangeSet["committed_on"] = changeSet["committed_on"];
                     rowForChangeSet["committer"] = changeSet["committer"].ToString();
                     rowForChangeSet["changes"] = dtCountChanges.Rows[0][0];
+                    rowForChangeSet["Committer_status"] = changeSet["Committer_status"].ToString();
                     dtChangeSets.Rows.Add(rowForChangeSet);
                 }
             }
@@ -247,7 +257,7 @@ namespace combit.RedmineReports
             return dtChangeSets;
         }
 
-        private DataTable CreateIssueHistory(string projectId, string sqlCommand, DateTime fromDate, DateTime toDate)
+        private DataTable CreateIssueHistory(string projectId, string sqlCommand, DateTime fromDate, DateTime toDate, string trackerIds)
         {
             // object to hold the history table per id
             Dictionary<int, DataTable> historyTable = new Dictionary<int, DataTable>();
@@ -260,8 +270,9 @@ namespace combit.RedmineReports
             parameters.Add(param);
 
             // get all matching issue ids for current filter settings
-            string sql = "SELECT issues.id, issues.created_on, issues.status_id FROM issues"
-                       + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + sqlCommand;
+            string sql = "SELECT issues.tracker_id AS TrackerID, issues.id, issues.created_on, issues.status_id FROM issues"
+                       + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + sqlCommand
+                       + "and issues.tracker_id IN(" + trackerIds + ")";
 
             DataTable dtIssueIds = GetDataTable(sql, parameters.ToArray<IDbDataParameter>());
 
@@ -276,10 +287,10 @@ namespace combit.RedmineReports
             foreach (DataRow dr in dtIssueIds.Rows)
             {
                 // fetches the history for the current id
-                DataTable currentHistory = CreateIssueHistoryTable((int)dr[0]);
+                DataTable currentHistory = CreateIssueHistoryTable((int)dr[1], trackerIds);
 
                 // add it to our history object
-                historyTable[(int)dr[0]] = currentHistory;
+                historyTable[(int)dr[1]] = currentHistory;
             }
 
             DataTable dtIssueStatuses;
@@ -328,7 +339,7 @@ namespace combit.RedmineReports
                 // loop through all issues
                 foreach (DataRow issueRow in dtIssueIds.Rows)
                 {
-                    int issueId = int.Parse(issueRow[0].ToString());
+                    int issueId = int.Parse(issueRow[1].ToString());
                     DateTime creationDate = (DateTime)(issueRow["created_on"]);
 
                     // will be created in the future -> skip
@@ -444,10 +455,10 @@ namespace combit.RedmineReports
             return theGiantHistory;
         }
 
-        private DataTable CreateIssueHistory(string projectId, string sqlCommand, int startDate)
+        private DataTable CreateIssueHistory(string projectId, string sqlCommand, int startDate, string trackerIds)
         {
             // object to hold the history table per id
-            Dictionary<int, DataTable> historyTable = new Dictionary<int, DataTable>();
+            Dictionary<int, DataTable> historyTable = new Dictionary<int, DataTable>();            
             
             DataTable dtIssueIds;
             DataTable dtDefaultStatus;
@@ -460,8 +471,9 @@ namespace combit.RedmineReports
             parameters.Add(param);
 
             // get all matching issue ids for current filter settings
-            string sql = "SELECT issues.id, issues.created_on, issues.status_id FROM issues"
-                       + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + sqlCommand;
+            string sql = "SELECT issues.tracker_id AS TrackerID, issues.id, issues.created_on, issues.status_id FROM issues"
+                       + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + sqlCommand
+                       + " and issues.tracker_id IN(" + trackerIds + ")";
 
             dtIssueIds = GetDataTable(sql, parameters.ToArray<IDbDataParameter>());
 
@@ -476,10 +488,10 @@ namespace combit.RedmineReports
             foreach (DataRow dr in dtIssueIds.Rows)
             {
                 // fetches the history for the current id
-                DataTable currentHistory = CreateIssueHistoryTable((int)dr[0]);
+                DataTable currentHistory = CreateIssueHistoryTable((int)dr[1], trackerIds);
 
                 // add it to our history object
-                historyTable[(int)dr[0]] = currentHistory;
+                historyTable[(int)dr[1]] = currentHistory;
             }
 
             DataTable dtIssueStatuses;
@@ -527,7 +539,7 @@ namespace combit.RedmineReports
                 // loop through all issues
                 foreach (DataRow issueRow in dtIssueIds.Rows)
                 {
-                    int issueId = int.Parse(issueRow[0].ToString());
+                    int issueId = int.Parse(issueRow[1].ToString());
                     DateTime creationDate = (DateTime)(issueRow["created_on"]);
 
                     // will be created in the future -> skip
@@ -682,6 +694,35 @@ namespace combit.RedmineReports
             return projectTable;
         }
 
+        public DataTable GetRedmineTrackers(string ProjectID)
+        {
+            //followed query gives all related trackers for choosed project as result
+            //the query checks in where wether the project id is in the project_trackers or not if not
+            // we have to take the project id from the parent to get all related trackers from parent
+            
+            string sqlProject = "Select distinct t1.name, t1.id from trackers t1" +
+                                " inner join" +
+                                " projects_trackers t2 ON t1.id = t2.tracker_id" +
+                                " inner join" +
+                                " projects t3 on t3.id = t2.project_id" +
+                                " Where " +
+                                "t3.parent_id is null and t3.id = " + String.Format("{0}", ProjectID) + " or t3.id = "+
+                                "If(" + String.Format("{0}", ProjectID) + " in (Select distinct project_id from projects_trackers), " + String.Format("{0}", ProjectID) + "," +
+                                    "(Select distinct parent_id from bitnami_redmine.projects where id = " + String.Format("{0}", ProjectID) + "))";
+
+            DataTable trackersTable = GetDataTable(sqlProject);
+            trackersTable.Columns.Add(new DataColumn("display_name", typeof(string)));
+
+            foreach (DataRow dr in trackersTable.Rows)
+            {
+                dr["display_name"] = ((dr["id"] == System.DBNull.Value) ? dr["name"] : String.Concat("\x2022 ", dr["name"]));
+            }
+
+            return trackersTable;
+        }
+
+        
+
         public DataView GetVersions(string projectID)
         {
             // SQL Query on Versions
@@ -730,14 +771,16 @@ namespace combit.RedmineReports
             return dtVersionname.Rows[0].ItemArray[0].ToString();
         }
 
-        private DataTable CreateIssueHistoryTable(int issueId)
+        private DataTable CreateIssueHistoryTable(int issueId, string trackerIds)
         {
             // SQL command on the right versions
-            string sqlProject = @"SELECT issues.id AS Issue_ID, issues.created_on AS Startdate, journals.created_on AS Enddate, journal_details.value AS Status 
+            string sqlProject = @"SELECT issues.tracker_id AS TrackerID, issues.id AS Issue_ID, issues.created_on AS Startdate, journals.created_on AS Enddate, journal_details.value AS Status 
                                  FROM issues 
                                  INNER JOIN journals ON issues.id = journals.journalized_id 
                                  INNER JOIN journal_details ON journals.id = journal_details.journal_id 
-                                 WHERE issues.id = journals.journalized_id AND journal_details.prop_key = 'status_id' AND issues.id = '" + issueId.ToString() + "'";
+                                 WHERE issues.id = journals.journalized_id AND journal_details.prop_key = 'status_id' AND issues.id = '" + issueId.ToString() + "'"
+                                 +" and issues.tracker_id IN(" + trackerIds + ")"; 
+
             return GetDataTable(sqlProject);
         }
 
