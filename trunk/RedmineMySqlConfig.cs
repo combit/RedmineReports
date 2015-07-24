@@ -39,9 +39,9 @@ namespace combit.RedmineReports
 
         private void checkConfButton_Click(object sender, EventArgs e)
         {
-            if (checkConfButton.Text.Equals("Check config"))
+            if (checkConfButton.Text.Equals("Check configuration"))
             {
-                checkConfButton.Text = "Stop";
+                checkConfButton.Enabled = false;
                 pictureBox1.Visible = true;
                 var args = Tuple.Create<string, string, string, string,string, bool>
                     (ipAddressTextBox.Text, mySQLLogTextBox.Text, mySQLPasssTextBox.Text,
@@ -84,7 +84,7 @@ namespace combit.RedmineReports
         {
             if (e.Error != null)
             {
-                MessageBox.Show(e.Error.Message);
+                MessageBox.Show(e.Error.Message);               
             }
             else if (e.Cancelled)
             {
@@ -93,7 +93,8 @@ namespace combit.RedmineReports
             {
                 saveButton.Enabled = true;
             }
-            checkConfButton.Text = "Check config";
+            checkConfButton.Text = "Check configuration";
+            checkConfButton.Enabled = true;
             pictureBox1.Visible = false;
         }
 
@@ -126,7 +127,7 @@ namespace combit.RedmineReports
             redmineReportsForm.reloadCmb(string.Format("server={0};uid={1};pwd={2};database={3};port={4};",
                     ipAddressTextBox.Text, mySQLLogTextBox.Text, mySQLPasssTextBox.Text,
                     dbNameTextBox.Text, mySqlPortTextBox.Text));
-
+            this.DialogResult = System.Windows.Forms.DialogResult.OK;
             Close();
         }
 

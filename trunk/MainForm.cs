@@ -1,5 +1,7 @@
-﻿using combit.ListLabel19;
+﻿using combit.ListLabel20;
+using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.Common;
@@ -7,7 +9,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-
+using System.Linq;
 
 namespace combit.RedmineReports
 {
@@ -16,11 +18,16 @@ namespace combit.RedmineReports
         ListLabel _lL;
         string connString;
         RedmineMySqlDataAccess _dataAccess;
+        private static RegistryKey installKey;
         public RedmineReportsForm()
-        {
+        {            
+
             try
             {
                 InitializeComponent();
+                installKey = Registry.CurrentUser.CreateSubKey(@"Software\" + Application.ProductName);
+                if (installKey.GetValue("LastSelectedTrackers", null) == null)
+                    installKey.SetValue("LastSelectedTrackers", string.Empty);
 
                 dtpToDate.Text = DateTime.Now.ToShortDateString();
                 dtpFromDate.Text = DateTime.Now.AddDays(-7).ToShortDateString();
@@ -34,15 +41,22 @@ namespace combit.RedmineReports
 
         private void btnDesign_Click(object sender, EventArgs e)
         {
+            //minimum one item must be selected otherwise the design throw an exception
+            if(NothingCheckd(lboxVersion, lstbTrackers))
+            {
+                lboxVersion.SetSelected(lboxVersion.Items.Count - 1, true);
+                lstbTrackers.SetSelected(0, true);
+            }
 
             InitDataSource();
             try
             {
-                _lL.Design(LlProject.List, "Report.lst");
+                _lL.DesignerWorkspace.Caption = "RedmineReports";
+                _lL.Design(LlProject.List);
             }
-            catch (ListLabelException ex)
+            catch (ListLabelException)
             {
-                MessageBox.Show(ex.Message);
+                
             }
             catch (NullReferenceException ex)
             {
@@ -58,8 +72,24 @@ namespace combit.RedmineReports
         {
             try
             {
+                //read selected item                
+
+                ListBox.SelectedIndexCollection TrackersListIndex = lstbTrackers.SelectedIndices;
+                StringBuilder selectedTrackers = new StringBuilder();
+                char[] chr = { ',' };
+                if (TrackersListIndex.Count > 0)
+                {
+                    foreach (int index in TrackersListIndex)
+                    {
+                        DataRowView drItem = (DataRowView)lstbTrackers.Items[index];
+                        selectedTrackers.Append( drItem["id"].ToString());
+                        selectedTrackers.Append(",");
+                    }
+
+                }
+                //.................
                 //read selected item
-                DataRowView drView = (DataRowView)cmbProject.SelectedItem;
+                DataRowView drView = (DataRowView)lstbProjects.SelectedItem;
                 string projectId = drView["id"].ToString();
 
                 ListBox.SelectedIndexCollection listIndex = lboxVersion.SelectedIndices;
@@ -101,12 +131,12 @@ namespace combit.RedmineReports
                 // get the redmine url
                 _lL.Variables.Add("Redmine.HostName", _dataAccess.GetRedmineHostName());
 
-                int startDate = Convert.ToInt32(tbStartDate.Text.ToString());
+                int startDate = Convert.ToInt32(numUpDoStartDate.Value);
 
                 if (rbDateRange.Checked)
-                    _lL.DataSource = _dataAccess.GetRedmineData(projectId, sqlCommand.ToString(), Convert.ToDateTime(dtpFromDate.Text), Convert.ToDateTime(dtpToDate.Text));
-                else if (rbTimespan.Checked)
-                    _lL.DataSource = _dataAccess.GetRedmineData(projectId, sqlCommand.ToString(), startDate);
+                    _lL.DataSource = _dataAccess.GetRedmineData(projectId, sqlCommand.ToString(), Convert.ToDateTime(dtpFromDate.Text), Convert.ToDateTime(dtpToDate.Text), selectedTrackers.ToString().TrimEnd(chr));
+                else if (rbDays.Checked)
+                    _lL.DataSource = _dataAccess.GetRedmineData(projectId, sqlCommand.ToString(), startDate, selectedTrackers.ToString().TrimEnd(chr));
             }
             catch (DbException ex)
             {
@@ -120,6 +150,8 @@ namespace combit.RedmineReports
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            this.BackColor = System.Drawing.Color.FromArgb(245, 246, 247);
+            this.GetMainWindowsPos();
             try
             {
                 if (RedmineReportsConfigDataHelper.ConnectionStringEncrypted(connString))
@@ -143,12 +175,11 @@ namespace combit.RedmineReports
                 // Add your License Key
                 _lL.LicensingInfo = "Insert license key here";
 
-                // fill project combobox
+                // fill project listbox
                 if (_dataAccess != null)
-                    cmbProject.DataSource = _dataAccess.GetRedmineProjects(Convert.ToBoolean(ConfigurationManager.AppSettings["UseAllProjects"]));
-
-                cmbProject.DisplayMember = "display_name";
-                cmbProject.ValueMember = "id";
+                    lstbProjects.DataSource = _dataAccess.GetRedmineProjects(Convert.ToBoolean(ConfigurationManager.AppSettings["UseAllProjects"]));
+                lstbProjects.DisplayMember = "display_name";
+                lstbProjects.ValueMember = "id";
 
                 // check or uncheck checkbox for subprojects
                 cbAllProjects.Checked = Convert.ToBoolean(ConfigurationManager.AppSettings["UseAllProjects"]);
@@ -163,6 +194,8 @@ namespace combit.RedmineReports
                 fct.EvaluateFunction += new EvaluateFunctionHandler(fct_EvaluateFunction);
                 _lL.DesignerFunctions.Add(fct);
 
+                lstbTrackers.Enabled = !AllLstBoxItemsSelected(lstbTrackers);
+                chkBox_All_Trackers.Checked = AllLstBoxItemsSelected(lstbTrackers);
             }
             catch (NullReferenceException ex)
             {
@@ -174,6 +207,38 @@ namespace combit.RedmineReports
             }
         }
 
+        private void UpdateTrackersList()
+        {
+            //get last selected items
+            string LastSelectedTrackers = installKey.GetValue("LastSelectedTrackers").ToString();
+            List<string> LastSelectedTrackersList = LastSelectedTrackers.Split(';').Select(item => item.Trim()).ToList<string>();
+
+            if(lstbProjects.SelectedItem != null)
+            {
+                DataRowView drView = (DataRowView)lstbProjects.SelectedItem;
+                string sProjectID = drView["id"].ToString();
+
+                //get all related trackers to project and fill the listbox
+                lstbTrackers.DataSource = _dataAccess.GetRedmineTrackers(sProjectID);
+                lstbTrackers.DisplayMember = "display_name";
+                lstbTrackers.ValueMember = "id";
+                lstbTrackers.SelectedIndices.Clear();
+
+                //set last selected items
+                for (int i = 0; i < LastSelectedTrackersList.Count; i++)
+                {
+                    for (int j = 0; j < lstbTrackers.Items.Count; j++)
+                    {
+                        if(lstbTrackers.GetItemText(lstbTrackers.Items[j]).Contains(LastSelectedTrackersList[i].ToString()))
+                        {
+                            lstbTrackers.SetSelected(j, true);
+                        }
+                    }
+                    
+                }
+
+            }
+        }
         void fct_EvaluateFunction(object sender, EvaluateFunctionEventArgs e)
         {
             e.ResultValue = _dataAccess.GetStatusNameFromId(Int32.Parse(e.Parameter1.ToString()));
@@ -182,9 +247,9 @@ namespace combit.RedmineReports
         private void UpdateVersionBox()
         {
             //read selected item
-            if (cmbProject.SelectedItem != null)
+            if (lstbProjects.SelectedItem != null)
             {
-                DataRowView drView = (DataRowView)cmbProject.SelectedItem;
+                DataRowView drView = (DataRowView)lstbProjects.SelectedItem;
                 string sProjectID = drView["id"].ToString();
 
                 // get all versions for the project and fill the listbox
@@ -203,6 +268,13 @@ namespace combit.RedmineReports
         private void cmbProject_SelectedIndexChanged(object sender, EventArgs e)
         {
             UpdateVersionBox();
+            UpdateTrackersList();
+        }
+
+        private void lstbProjects_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateVersionBox();
+            UpdateTrackersList();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -210,6 +282,8 @@ namespace combit.RedmineReports
             _lL.Dispose();
             if (_dataAccess != null)
                 _dataAccess.Dispose();
+
+            this.SetWindowsPostion();
         }
 
         private void btnPrint_Click(object sender, EventArgs e)
@@ -229,9 +303,8 @@ namespace combit.RedmineReports
                     _lL.Export(config);
                 }
             }
-            catch (ListLabelException ex)
-            {
-                MessageBox.Show(ex.Message);
+            catch (ListLabelException)
+            {                              
             }
             catch (DbException ex)
             {
@@ -249,31 +322,10 @@ namespace combit.RedmineReports
             throw new ListLabelException("The dialog was canceled by the user.");
         }
 
-        private void tbStartDate_TextChanged(object sender, EventArgs e)
-        {
-            TextBox source = sender as TextBox;
-            if (source == null)
-                return;
-
-            string text = source.Text;
-            if (Regex.IsMatch(text, "^[0-9]*$"))
-                return;
-
-            source.TextChanged -= this.tbStartDate_TextChanged;
-
-            source.ResetText();
-            if (source.TextLength != 1)
-            {
-                source.AppendText(text.Substring(0, text.Length - 1));
-            }
-            
-            source.TextChanged += this.tbStartDate_TextChanged;
-        }
-
         private void cbAllProjects_CheckedChanged(object sender, EventArgs e)
         {
             if (_dataAccess != null)
-                cmbProject.DataSource = _dataAccess.GetRedmineProjects(cbAllProjects.Checked);
+                lstbProjects.DataSource = _dataAccess.GetRedmineProjects(cbAllProjects.Checked);
         }
 
         //private void tbFromDate_KeyPress(object sender, KeyPressEventArgs e)
@@ -292,26 +344,11 @@ namespace combit.RedmineReports
         //        e.Handled = true;
         //}
 
-        private void rbTimespan_CheckedChanged(object sender, EventArgs e)
-        {
-            if (rbTimespan.Checked)
-            {
-                tbStartDate.Enabled = true;
-                dtpFromDate.Enabled = false;
-                dtpToDate.Enabled = false;
-            }
-            else if (rbDateRange.Checked)
-            {
-                dtpFromDate.Enabled = true;
-                dtpToDate.Enabled = true;
-                tbStartDate.Enabled = false;
-            }
-        }
 
         private void redmineDBToolStripMenuItem_Click(object sender, EventArgs e)
         {
             RedmineMySqlConfig rmc = new RedmineMySqlConfig(this);
-            rmc.Show();
+            rmc.ShowDialog();
         }
 
         public void reloadCmb(string ConnectionString)
@@ -319,16 +356,123 @@ namespace combit.RedmineReports
             //InitializeComponent();
             _dataAccess = null;
             _dataAccess = new RedmineMySqlDataAccess(ConnectionString);
-            cmbProject.DataSource = null;
-            cmbProject.DataSource = _dataAccess.GetRedmineProjects(Convert.ToBoolean(ConfigurationManager.AppSettings["UseAllProjects"]));
-            cmbProject.DisplayMember = "display_name";
-            cmbProject.ValueMember = "id";
+
+            lstbProjects.DataSource = null;
+            lstbProjects.DataSource = _dataAccess.GetRedmineProjects(Convert.ToBoolean(ConfigurationManager.AppSettings["UseAllProjects"]));
+            lstbProjects.DisplayMember = "display_name";
+            lstbProjects.ValueMember = "id";
         }
 
         private void ConfigureMySqlDataBaseConnection()
         {
             RedmineMySqlConfig rmc = new RedmineMySqlConfig(this);
             rmc.ShowDialog();
+            if (rmc.DialogResult == System.Windows.Forms.DialogResult.Cancel)
+                Environment.Exit(-1);
         }
+
+        List<string> strItemList = new List<string>();
+        private void RedmineReportsForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            //write last selected tracker to registry
+            string strItems;
+            string strItem;
+            if(lstbTrackers.SelectedItems.Count !=0)
+            { 
+                foreach (DataRowView selecteditem in lstbTrackers.SelectedItems)
+                {
+                    strItem = selecteditem["name"].ToString();
+                    if (!strItemList.Contains(strItem))
+                        strItemList.Add(strItem);
+                    strItems = String.Join(";", strItemList.ToArray());
+                    installKey.SetValue("LastSelectedTrackers", strItems);
+                }
+            }
+            else
+            {
+                DataRowView item = (DataRowView)lstbTrackers.Items[lstbTrackers.Items.Count - 1];
+                strItem = item["name"].ToString();
+                installKey.SetValue("LastSelectedTrackers", strItem);
+                lstbTrackers.SelectedIndex = lstbTrackers.Items.Count - 1;
+
+            }
+
+        }
+
+        private void chkBox_SelectAll_CheckedChanged(object sender, EventArgs e)
+        {
+
+            for (int i = 0; i < lboxVersion.Items.Count; i++)
+            {
+                lboxVersion.SetSelected(i, chkBox_SelectAll.Checked);
+            }
+
+            lboxVersion.Enabled = chkBox_SelectAll.Checked ? false : true;
+        }
+
+        private void chkBox_All_Trackers_CheckedChanged(object sender, EventArgs e)
+        {
+            for (int i = 0; i < lstbTrackers .Items.Count; i++)
+            {
+                lstbTrackers.SetSelected(i, chkBox_All_Trackers.Checked);
+            }
+
+            lstbTrackers.Enabled = chkBox_All_Trackers.Checked ? false : true;
+            
+        }
+
+        private void rbDays_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbDays.Checked)
+            {                
+                numUpDoStartDate.Enabled = true;
+                dtpFromDate.Enabled = false;
+                dtpToDate.Enabled = false;
+            }
+            else if (rbDateRange.Checked)
+            {
+                dtpFromDate.Enabled = true;
+                dtpToDate.Enabled = true;
+                numUpDoStartDate.Enabled = false;
+            }
+
+        }
+
+        private bool AllLstBoxItemsSelected(ListBox lstBox)
+        {            
+            return lstBox.SelectedItems.Count == lstBox.Items.Count;
+        }
+
+        private bool NothingCheckd(ListBox lstBox1, ListBox lstBox2)
+        {
+            return lstBox1.SelectedItems.Count < 1 || lstBox2.SelectedItems.Count < 1;
+        }
+
+    }
+    public static class ExtensionsMethod
+    {
+        private static RegistryKey installKey = Registry.CurrentUser.CreateSubKey(@"Software\" + Application.ProductName);
+
+        public static void SetWindowsPostion(this Form frm)
+        {
+            installKey.SetValue("LocationX", frm.DesktopLocation.X);
+            installKey.SetValue("LocationY", frm.DesktopLocation.Y);
+        }
+
+        public static void GetMainWindowsPos(this Form frm)
+        {
+            if (installKey == null)
+                Registry.CurrentUser.CreateSubKey(@"Software\" + Application.ProductName);
+
+            frm.Location = new System.Drawing.Point(System.Convert.ToInt32(installKey.GetValue("LocationX")),
+                System.Convert.ToInt32(installKey.GetValue("LocationY")));
+
+            if (!Screen.GetWorkingArea(frm).Contains(frm.Bounds))
+            {
+                frm.SetDesktopLocation(0, 0);
+            }
+
+        }
+
     }
 }

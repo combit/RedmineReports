@@ -59,9 +59,9 @@
     </StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="combit.ListLabel19">
+    <Reference Include="combit.ListLabel20">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>combit.ListLabel19.dll</HintPath>
+      <HintPath>combit.ListLabel20.dll</HintPath>
     </Reference>
     <Reference Include="MySql.Data">
       <SpecificVersion>False</SpecificVersion>
@@ -78,6 +78,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="RedmineMySqlConfig.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -100,14 +105,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <EmbeddedResource Include="RedmineMySqlConfig.resx">
       <DependentUpon>RedmineMySqlConfig.cs</DependentUpon>
     </EmbeddedResource>
@@ -127,7 +127,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="LL-Redmine.ico" />
-    <None Include="Resources\Powered-by-LL.png" />
+    <None Include="Resources\report.ico" />
+    <None Include="Resources\design.ico" />
+    <None Include="Resources\RR-Logo.png" />
+    <None Include="Resources\RR-LL-Logo.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
