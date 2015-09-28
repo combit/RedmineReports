@@ -708,7 +708,7 @@ namespace combit.RedmineReports
                                 " Where " +
                                 "t3.parent_id is null and t3.id = " + String.Format("{0}", ProjectID) + " or t3.id = "+
                                 "If(" + String.Format("{0}", ProjectID) + " in (Select distinct project_id from projects_trackers), " + String.Format("{0}", ProjectID) + "," +
-                                    "(Select distinct parent_id from bitnami_redmine.projects where id = " + String.Format("{0}", ProjectID) + "))";
+                                    "(Select distinct parent_id from projects where id = " + String.Format("{0}", ProjectID) + "))";
 
             DataTable trackersTable = GetDataTable(sqlProject);
             trackersTable.Columns.Add(new DataColumn("display_name", typeof(string)));
