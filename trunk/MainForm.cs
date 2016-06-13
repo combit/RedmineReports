@@ -41,13 +41,6 @@ namespace combit.RedmineReports
 
         private void btnDesign_Click(object sender, EventArgs e)
         {
-            //minimum one item must be selected otherwise the design throw an exception
-            if(NothingCheckd(lboxVersion, lstbTrackers))
-            {
-                lboxVersion.SetSelected(lboxVersion.Items.Count - 1, true);
-                lstbTrackers.SetSelected(0, true);
-            }
-
             InitDataSource();
             try
             {

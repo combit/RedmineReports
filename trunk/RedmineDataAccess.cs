@@ -48,7 +48,7 @@ namespace combit.RedmineReports
 
             cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, Count(status_id) AS Count, issue_statuses.name AS StatusName"
                             + " FROM issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id"
-                            + " WHERE issues.project_id = " + projectId + "" + sqlCommand + "and issues.tracker_id IN(" + trackerIDs + ") GROUP BY status_id";
+                            + " WHERE issues.project_id = " + projectId + "" + sqlCommand + " and issues.tracker_id IN(" + trackerIDs + ") GROUP BY status_id";
             provider.AddCommand(cmd, "IssuesByStatus", "`{0}`", "?{0}");
 
             cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.status AS LoginNameStatus, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
@@ -104,7 +104,7 @@ namespace combit.RedmineReports
 
             cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, Count(status_id) AS Count, issue_statuses.name AS StatusName"
                             + " FROM issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id"
-                            + " WHERE issues.project_id = " + projectId + "" + sqlCommand + "and issues.tracker_id IN(" + trackerIDs + ") GROUP BY status_id";
+                            + " WHERE issues.project_id = " + projectId + "" + sqlCommand + " and issues.tracker_id IN(" + trackerIDs + ") GROUP BY status_id";
             provider.AddCommand(cmd, "IssuesByStatus", "`{0}`", "?{0}");
 
             cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.status AS LoginNameStatus, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
@@ -116,7 +116,7 @@ namespace combit.RedmineReports
                             + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
                             + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
                             + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio = '100'" 
-                            + "and issues.tracker_id IN(" + trackerIDs + ")";
+                            + " and issues.tracker_id IN(" + trackerIDs + ")";
 
             provider.AddCommand(cmd, "FixedIssues", "`{0}`", "?{0}");
 
@@ -151,7 +151,7 @@ namespace combit.RedmineReports
 
             // get all issues of the selected project and version    
             sql = "SELECT issues.tracker_id AS TrackerID, issues.id, issues.created_on, issues.updated_on FROM issues"
-                      + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + " " + String.Format(GetParameterFormat(), "SQLCOMMAND") + closedIssuesSqlCommand.ToString() + "" + "and issues.tracker_id IN(" + trackerIds + ")";
+                      + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + " " + String.Format(GetParameterFormat(), "SQLCOMMAND") + closedIssuesSqlCommand.ToString() + "" + " and issues.tracker_id IN(" + trackerIds + ")";
 
             // create parameters
             List<IDbDataParameter> parameters = new List<IDbDataParameter>();
@@ -164,7 +164,7 @@ namespace combit.RedmineReports
             sqlCommandparam.ParameterName = String.Format(GetParameterFormat(), "SQLCOMMAND");
             sqlCommandparam.Value = sqlCommand;
 
-            dtClosedIssues = GetDataTable(sql, parameters.ToArray<IDbDataParameter>());
+            dtClosedIssues = GetDataTable(sql, parameters.ToArray<IDbDataParameter>(), false);
 
             Dictionary<int, int> daysVsFixCount = new Dictionary<int, int>();
 
@@ -226,7 +226,7 @@ namespace combit.RedmineReports
             param.ParameterName = String.Format(GetParameterFormat(), "PROJECTID");
             param.Value = projectId;
 
-            DataTable dtProjects = GetDataTable(sql, parameters.ToArray<IDbDataParameter>());
+            DataTable dtProjects = GetDataTable(sql, parameters.ToArray<IDbDataParameter>(), false);
             DataTable dtChangeSets = new DataTable();
             dtChangeSets.Columns.Add("Committed_on", typeof(DateTime));
             dtChangeSets.Columns.Add("Committer");
@@ -272,17 +272,27 @@ namespace combit.RedmineReports
             // get all matching issue ids for current filter settings
             string sql = "SELECT issues.tracker_id AS TrackerID, issues.id, issues.created_on, issues.status_id FROM issues"
                        + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + sqlCommand
-                       + "and issues.tracker_id IN(" + trackerIds + ")";
+                       + " and issues.tracker_id IN(" + trackerIds + ")";
 
-            DataTable dtIssueIds = GetDataTable(sql, parameters.ToArray<IDbDataParameter>());
+            DataTable dtIssueIds = GetDataTable(sql, parameters.ToArray<IDbDataParameter>(), false);
 
             // get default status for a ticket
-            sql = "SELECT issue_statuses.id FROM issue_statuses WHERE issue_statuses.is_default = '1'";
-            DataTable dtDefaultStatus = GetDataTable(sql);
-            DataRow drDefaultStatus = dtDefaultStatus.Rows[0];
+            int newTicketStatusID = 1;
+            try
+            {
 
-            // get the default status for a new ticket
-            int newTicketStatusID = int.Parse(drDefaultStatus[0].ToString());
+                sql = "SELECT issue_statuses.id FROM issue_statuses WHERE issue_statuses.is_default = '1'";
+                DataTable dtDefaultStatus = GetDataTable(sql, null, true);
+                DataRow drDefaultStatus = dtDefaultStatus.Rows[0];
+
+                // get the default status for a new ticket
+                newTicketStatusID = int.Parse(drDefaultStatus[0].ToString());
+            }
+            catch (MySql.Data.MySqlClient.MySqlException)
+            {
+                // might fail if there is no default, assume the first then
+            }
+
 
             foreach (DataRow dr in dtIssueIds.Rows)
             {
@@ -475,15 +485,23 @@ namespace combit.RedmineReports
                        + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + sqlCommand
                        + " and issues.tracker_id IN(" + trackerIds + ")";
 
-            dtIssueIds = GetDataTable(sql, parameters.ToArray<IDbDataParameter>());
+            dtIssueIds = GetDataTable(sql, parameters.ToArray<IDbDataParameter>(), false);
 
             // get default status for a ticket
-            sql = "SELECT issue_statuses.id FROM issue_statuses WHERE issue_statuses.is_default = '1'";
-            dtDefaultStatus = GetDataTable(sql);
-            DataRow drDefaultStatus = dtDefaultStatus.Rows[0];
+            int newTicketStatusID = 1;
+            try
+            {
+                sql = "SELECT issue_statuses.id FROM issue_statuses WHERE issue_statuses.is_default = '1'";
+                dtDefaultStatus = GetDataTable(sql, null, true);
+                DataRow drDefaultStatus = dtDefaultStatus.Rows[0];
 
-            // get the default status for a new ticket
-            int newTicketStatusID = int.Parse(drDefaultStatus[0].ToString());
+                // get the default status for a new ticket
+                newTicketStatusID = int.Parse(drDefaultStatus[0].ToString());
+            }
+            catch (MySql.Data.MySqlClient.MySqlException)
+            { 
+                // might fail if there is no default, assume the first then
+            }
 
             foreach (DataRow dr in dtIssueIds.Rows)
             {
@@ -657,10 +675,10 @@ namespace combit.RedmineReports
 
         public DataTable GetDataTable(string sql)
         {
-            return GetDataTable(sql, null);
+            return GetDataTable(sql, null, false);
         }
 
-        public abstract DataTable GetDataTable(string sql, IDbDataParameter[] parameters);
+        public abstract DataTable GetDataTable(string sql, IDbDataParameter[] parameters, bool raiseException);
         public abstract IDbDataParameter GetParameter();
         public abstract String GetParameterFormat();
 
@@ -735,7 +753,7 @@ namespace combit.RedmineReports
             param.ParameterName = String.Format(GetParameterFormat(), "PROJECTID");
             param.Value = projectID;
             
-            DataTable dtVersions = GetDataTable(sqlProject, parameters.ToArray<IDbDataParameter>());
+            DataTable dtVersions = GetDataTable(sqlProject, parameters.ToArray<IDbDataParameter>(), false);
             DataView dvVersions = new DataView(dtVersions);
             dvVersions.Sort = "name ASC";
             return dvVersions;
@@ -753,7 +771,7 @@ namespace combit.RedmineReports
             param.ParameterName = String.Format(GetParameterFormat(), "PROJECTID");
             param.Value = projectId;
 
-            DataTable dtProjectname = GetDataTable(sql, parameters.ToArray<IDbDataParameter>());
+            DataTable dtProjectname = GetDataTable(sql, parameters.ToArray<IDbDataParameter>(), false);
             
             return dtProjectname.Rows[0].ItemArray[0].ToString();
         }
