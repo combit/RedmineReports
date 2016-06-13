@@ -60,8 +60,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="combit.ListLabel20">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>combit.ListLabel20.dll</HintPath>
+      <HintPath>V:\release\ll20\net\v4.0\combit.ListLabel20.dll</HintPath>
     </Reference>
     <Reference Include="MySql.Data">
       <SpecificVersion>False</SpecificVersion>

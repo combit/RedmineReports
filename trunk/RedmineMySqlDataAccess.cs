@@ -63,7 +63,7 @@ namespace combit.RedmineReports
             return "@{0}";
         }
 
-        public override DataTable GetDataTable(string sql, IDbDataParameter[] parameters)
+        public override DataTable GetDataTable(string sql, IDbDataParameter[] parameters, bool raiseException)
         {
             try
             {
@@ -84,11 +84,17 @@ namespace combit.RedmineReports
             }
             catch (MySqlException ex)
             {
+                if (raiseException)
+                    throw;
+
                 MessageBox.Show(ex.Message + "\n" + "Command was: " + sql);
                 return null;
             }
             catch (Exception ex)
             {
+                if (raiseException)
+                    throw;
+
                 MessageBox.Show(ex.Message);
                 return null;
             }
