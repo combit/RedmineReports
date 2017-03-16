@@ -15,10 +15,8 @@ namespace combit.RedmineReports
         protected RedmineDataAccessBase()
         {
         }
-
-        public DataProviderCollection GetRedmineData(string projectId, string sqlCommand, int startDate, string trackerIDs)
+        private DbCommandSetDataProvider CreateProvider(string _projectId, string _sqlCommand, string _trackerIDs)
         {
-            DataProviderCollection collection = new DataProviderCollection();
             DbCommandSetDataProvider provider = new DbCommandSetDataProvider();
             provider.MinimalSelect = false;
             IDbCommand cmd = _connection.CreateCommand();
@@ -31,7 +29,7 @@ namespace combit.RedmineReports
                             + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
                             + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
                             + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
-                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " and issues.tracker_id IN(" + trackerIDs + ")";
+                            + " WHERE issues.project_id = '" + _projectId + "'" + _sqlCommand + " and issues.tracker_id IN(" + _trackerIDs + ")";
             provider.AddCommand(cmd, "Issues", "`{0}`", "?{0}");
 
             cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.status AS LoginNameStatus, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
@@ -42,13 +40,13 @@ namespace combit.RedmineReports
                             + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
                             + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
                             + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
-                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio != '100' and issues.tracker_id IN(" + trackerIDs + ")";
+                            + " WHERE issues.project_id = '" + _projectId + "'" + _sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio != '100' and issues.tracker_id IN(" + _trackerIDs + ")";
 
             provider.AddCommand(cmd, "OpenIssues", "`{0}`", "?{0}");
 
             cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, Count(status_id) AS Count, issue_statuses.name AS StatusName"
                             + " FROM issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id"
-                            + " WHERE issues.project_id = " + projectId + "" + sqlCommand + " and issues.tracker_id IN(" + trackerIDs + ") GROUP BY status_id";
+                            + " WHERE issues.project_id = " + _projectId + "" + _sqlCommand + " and issues.tracker_id IN(" + _trackerIDs + ") GROUP BY status_id";
             provider.AddCommand(cmd, "IssuesByStatus", "`{0}`", "?{0}");
 
             cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.status AS LoginNameStatus, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
@@ -59,12 +57,19 @@ namespace combit.RedmineReports
                             + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
                             + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
                             + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
-                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio = '100'"
-                            + "and issues.tracker_id IN(" + trackerIDs + ")";
+                            + " WHERE issues.project_id = '" + _projectId + "'" + _sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio = '100'"
+                            + " and issues.tracker_id IN(" + _trackerIDs + ")";
 
             provider.AddCommand(cmd, "FixedIssues", "`{0}`", "?{0}");
-
             provider.SupportSorting = true;
+
+            return provider;
+        }
+        public DataProviderCollection GetRedmineData(string projectId, string sqlCommand, int startDate, string trackerIDs)
+        {
+            DataProviderCollection collection = new DataProviderCollection();
+            DbCommandSetDataProvider provider = CreateProvider(projectId, sqlCommand, trackerIDs);          
+            
             collection.Add(provider);
             collection.Add(new AdoDataProvider(CreateIssueHistory(projectId, sqlCommand, startDate, trackerIDs)));
             collection.Add(new AdoDataProvider(CreateChangeSetTable(projectId, startDate)));
@@ -75,52 +80,8 @@ namespace combit.RedmineReports
         public DataProviderCollection GetRedmineData(string projectId, string sqlCommand, DateTime fromDate, DateTime toDate, string trackerIDs)
         {
             DataProviderCollection collection = new DataProviderCollection();
-            DbCommandSetDataProvider provider = new DbCommandSetDataProvider();
-            provider.MinimalSelect = false;
-            IDbCommand cmd = _connection.CreateCommand();
-
-            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject AS IssueName, issue_statuses.name AS IssueStatus, u1.login AS LoginName, u1.status AS LoginNameStatus, u1.firstname AS FirstName, u1.lastname AS LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
-                            + " FROM (issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id)"
-                            + " INNER JOIN users u1 ON issues.author_id = u1.id"
-                            + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
-                            + " INNER JOIN projects ON issues.project_id = projects.id"
-                            + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
-                            + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
-                            + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
-                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " and issues.tracker_id IN(" + trackerIDs + ")";
-            provider.AddCommand(cmd, "Issues", "`{0}`", "?{0}");
-
-            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.status AS LoginNameStatus, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
-                            + " FROM (issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id)"
-                            + " INNER JOIN users u1 ON issues.author_id = u1.id"
-                            + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
-                            + " INNER JOIN projects ON issues.project_id = projects.id"
-                            + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
-                            + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
-                            + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
-                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio != '100' and issues.tracker_id IN(" + trackerIDs + ")";
-
-            provider.AddCommand(cmd, "OpenIssues", "`{0}`", "?{0}");
-
-            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, Count(status_id) AS Count, issue_statuses.name AS StatusName"
-                            + " FROM issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id"
-                            + " WHERE issues.project_id = " + projectId + "" + sqlCommand + " and issues.tracker_id IN(" + trackerIDs + ") GROUP BY status_id";
-            provider.AddCommand(cmd, "IssuesByStatus", "`{0}`", "?{0}");
-
-            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.status AS LoginNameStatus, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
-                            + " FROM (issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id)"
-                            + " INNER JOIN users u1 ON issues.author_id = u1.id"
-                            + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
-                            + " INNER JOIN projects ON issues.project_id = projects.id"
-                            + " LEFT OUTER JOIN versions ON issues.fixed_version_id = versions.id"
-                            + " INNER JOIN enumerations ON issues.priority_id = enumerations.id"
-                            + " LEFT OUTER JOIN issue_categories ON issues.category_id = issue_categories.id"
-                            + " WHERE issues.project_id = '" + projectId + "'" + sqlCommand + " AND issue_statuses.is_closed = '0' AND issues.done_ratio = '100'" 
-                            + " and issues.tracker_id IN(" + trackerIDs + ")";
-
-            provider.AddCommand(cmd, "FixedIssues", "`{0}`", "?{0}");
-
-            provider.SupportSorting = true;
+            DbCommandSetDataProvider provider = CreateProvider(projectId, sqlCommand, trackerIDs);
+            
             collection.Add(provider);
             collection.Add(new AdoDataProvider(CreateIssueHistory(projectId, sqlCommand, fromDate, toDate, trackerIDs)));
             collection.Add(new AdoDataProvider(CreateChangeSetTable(projectId, fromDate, toDate)));
@@ -257,268 +218,99 @@ namespace combit.RedmineReports
             return dtChangeSets;
         }
 
+
+        private string GetMatchingIssueSql(string _sqlCommand, string _trackerIds)
+        {
+            // get all matching issue ids for current filter settings
+            string sql = "SELECT issues.tracker_id AS TrackerID, issues.id, issues.created_on, issues.status_id FROM issues"
+                       + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + _sqlCommand
+                       + " and issues.tracker_id IN(" + _trackerIds + ")";
+
+            return sql;
+
+        }
+        private DataTable theGiantHistory;
+
+        private List<IDbDataParameter> CreateParameters(string _projectId)
+        {
+            // create parameters
+            List<IDbDataParameter> parameters = new List<IDbDataParameter>();
+            IDbDataParameter param = GetParameter();
+            param.ParameterName = String.Format(GetParameterFormat(), "PROJECTID");
+            param.Value = _projectId;
+            parameters.Add(param);
+
+            return parameters;
+
+        }
         private DataTable CreateIssueHistory(string projectId, string sqlCommand, DateTime fromDate, DateTime toDate, string trackerIds)
         {
+            int startDate = (int)((toDate - fromDate).TotalHours / 24);
+            DoIssueHistoryTableJob(true, projectId, sqlCommand, trackerIds, startDate, fromDate, toDate);
+
+            theGiantHistory.TableName = "History";
+            return theGiantHistory;
+        }
+        private DataTable CreateIssueHistory(string projectId, string sqlCommand, int startDate, string trackerIds)
+        {            
+            DoIssueHistoryTableJob(false, projectId, sqlCommand, trackerIds, startDate);
+
+            theGiantHistory.TableName = "History";
+            return theGiantHistory;
+        }
+
+        private void DoIssueHistoryTableJob(bool isDateTime, string _projectId, string _sqlCommand, string _trackerIds,
+                                        int _startDate, DateTime _fromDate = new DateTime(), DateTime _toDate = new DateTime())
+
+        {        
+            DataTable dtIssueIds;
+            DataTable dtDefaultStatus;
+            DataTable dtIssueStatuses;
+            DataTable currentHistory;
+            DataRow drDefaultStatus;
+
+            // set default status for a ticket
+            int newTicketStatusID = 1;
             // object to hold the history table per id
             Dictionary<int, DataTable> historyTable = new Dictionary<int, DataTable>();
 
             // create parameters
-            List<IDbDataParameter> parameters = new List<IDbDataParameter>();
-            IDbDataParameter param = GetParameter();
-            param.ParameterName = String.Format(GetParameterFormat(), "PROJECTID");
-            param.Value = projectId;
-            parameters.Add(param);
+            List<IDbDataParameter> parameters = CreateParameters(_projectId);
 
             // get all matching issue ids for current filter settings
-            string sql = "SELECT issues.tracker_id AS TrackerID, issues.id, issues.created_on, issues.status_id FROM issues"
-                       + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + sqlCommand
-                       + " and issues.tracker_id IN(" + trackerIds + ")";
-
-            DataTable dtIssueIds = GetDataTable(sql, parameters.ToArray<IDbDataParameter>(), false);
-
-            // get default status for a ticket
-            int newTicketStatusID = 1;
-            try
-            {
-
-                sql = "SELECT issue_statuses.id FROM issue_statuses WHERE issue_statuses.is_default = '1'";
-                DataTable dtDefaultStatus = GetDataTable(sql, null, true);
-                DataRow drDefaultStatus = dtDefaultStatus.Rows[0];
-
-                // get the default status for a new ticket
-                newTicketStatusID = int.Parse(drDefaultStatus[0].ToString());
-            }
-            catch (MySql.Data.MySqlClient.MySqlException)
-            {
-                // might fail if there is no default, assume the first then
-            }
-
-
-            foreach (DataRow dr in dtIssueIds.Rows)
-            {
-                // fetches the history for the current id
-                DataTable currentHistory = CreateIssueHistoryTable((int)dr[1], trackerIds);
-
-                // add it to our history object
-                historyTable[(int)dr[1]] = currentHistory;
-            }
-
-            DataTable dtIssueStatuses;
-            // Get all available statuses
-            sql = "SELECT issue_statuses.id, issue_statuses.name, issue_statuses.is_closed, issue_statuses.default_done_ratio FROM issue_statuses";
-            dtIssueStatuses = GetDataTable(sql);
-
-            // create the result table
-            DataTable theGiantHistory = new DataTable();
-
-            // add date column
-            DataColumn dateCol = new DataColumn("Date", typeof(DateTime));
-            theGiantHistory.Columns.Add(dateCol);
-
-            // add one column for each status id
-            foreach (DataRow dr in dtIssueStatuses.Rows)
-            {
-                DataColumn dc = new DataColumn(dr["id"].ToString(), typeof(int));
-                theGiantHistory.Columns.Add(dc);
-            }
-
-            // add meta columns for open and closed issues
-            DataColumn openCount = new DataColumn("OpenCount", typeof(int));
-            theGiantHistory.Columns.Add(openCount);
-            DataColumn solvedCount = new DataColumn("SolvedCount", typeof(int));
-            theGiantHistory.Columns.Add(solvedCount);
-            DataColumn closedCount = new DataColumn("ClosedCount", typeof(int));
-            theGiantHistory.Columns.Add(closedCount);
-            DataColumn createdIssues = new DataColumn("CreatedIssues", typeof(int));
-            theGiantHistory.Columns.Add(createdIssues);
-            DataColumn changedIssues = new DataColumn("ChangedIssues", typeof(int));
-            theGiantHistory.Columns.Add(changedIssues);
-
-            // now loop through history
-            int startDate = (int)((toDate - fromDate).TotalHours/24);
-            for (int days = -startDate; days <= 0; days++)
-            {
-                DateTime currentDay = toDate.AddDays(days);
-
-                int creationCount = 0;
-                int changesCount = 0;
-
-                // this object holds the issue count per issue status for the current day
-                Dictionary<int, int> issueCounts = new Dictionary<int, int>();
-
-                // loop through all issues
-                foreach (DataRow issueRow in dtIssueIds.Rows)
-                {
-                    int issueId = int.Parse(issueRow[1].ToString());
-                    DateTime creationDate = (DateTime)(issueRow["created_on"]);
-
-                    // will be created in the future -> skip
-                    if (creationDate.Date > currentDay.Date)
-                    {
-                        continue;
-                    }
-
-                    // created today - count
-                    if (creationDate.Date == currentDay.Date)
-                    {
-                        creationCount++;
-                    }
-
-                    // get current issue's history
-                    if (historyTable[issueId].Rows.Count == 0)
-                    {
-                        // history-less issue (i.e. new and never edited or similar)
-                        // create virtual increment and assign current status
-                        int currentStatusId = (int)issueRow["status_id"];
-
-                        if (!issueCounts.ContainsKey(currentStatusId))
-                        {
-                            issueCounts.Add(currentStatusId, 0);
-                        }
-                        issueCounts[currentStatusId]++;
-                        continue;
-                    }
-
-                    DataView dvCurrentIssueHistory = new DataView(historyTable[issueId]);
-
-                    int lastStatusId = newTicketStatusID;
-
-                    // sort by end date
-                    dvCurrentIssueHistory.Sort = "Enddate ASC";
-
-                    // loop through history entries (aka journal_details)
-                    foreach (DataRowView dr in dvCurrentIssueHistory)
-                    {
-                        DateTime currentStatusStart = (DateTime)dr["Startdate"];
-                        DateTime currentStatusEnd = (DateTime)dr["Enddate"];
-
-                        // changed today - count
-                        if (currentStatusEnd.Date == currentDay.Date)
-                        {
-                            changesCount++;
-                        }
-
-                        // not in this timeframe - ticket was created "in the future" -> skip
-                        if (currentStatusStart.Date > currentDay.Date)
-                            break;
-
-                        // fetch last status and remember it
-                        if (currentStatusEnd.Date <= currentDay.Date)
-                        {
-                            lastStatusId = Int32.Parse(dr["Status"].ToString());
-                            continue;
-                        }
-                        break;
-                    }
-
-                    // if we reach this point, the next status change will be in the "future" or there is none, thus count this issue
-                    if (!issueCounts.ContainsKey(lastStatusId))
-                    {
-                        issueCounts.Add(lastStatusId, 0);
-                    }
-                    issueCounts[lastStatusId]++;
-                }
-
-                // we now have a Dictionary for the current day, containing all the counts for the ticket statuses
-                // create datarow in result table (one row per day)
-                DataRow rowForToday = theGiantHistory.NewRow();
-                rowForToday["Date"] = currentDay.Date;
-                rowForToday["CreatedIssues"] = creationCount;
-                rowForToday["ChangedIssues"] = changesCount;
-                int openCounter = 0, closedCounter = 0, solvedCounter = 0;
-
-                foreach (int statusId in issueCounts.Keys)
-                {
-                    // set issue id column of result table to resulting count for this status id
-                    rowForToday[statusId.ToString()] = issueCounts[statusId];
-
-                    // find the status id in the statuses table
-                    foreach (DataRow dr in dtIssueStatuses.Rows)
-                    {
-                        if (dr["id"].ToString() == statusId.ToString())
-                        {
-                            // increment open or closed counter
-                            if ((bool)dr["is_closed"])
-                                closedCounter += issueCounts[statusId];
-                            else
-                            {
-                                if ((dr["default_done_ratio"] != System.DBNull.Value) && ((int)dr["default_done_ratio"] == 100))
-                                {
-                                    solvedCounter += issueCounts[statusId];
-                                }
-                                else
-                                    openCounter += issueCounts[statusId];
-                            }
-                            break;
-                        }
-                    }
-                }
-
-                rowForToday["OpenCount"] = openCounter;
-                rowForToday["ClosedCount"] = closedCounter;
-                rowForToday["SolvedCount"] = solvedCounter;
-
-                // add the row for this day
-                theGiantHistory.Rows.Add(rowForToday);
-            }
-            theGiantHistory.TableName = "History";
-            return theGiantHistory;
-        }
-
-        private DataTable CreateIssueHistory(string projectId, string sqlCommand, int startDate, string trackerIds)
-        {
-            // object to hold the history table per id
-            Dictionary<int, DataTable> historyTable = new Dictionary<int, DataTable>();            
-            
-            DataTable dtIssueIds;
-            DataTable dtDefaultStatus;
-
-            // create parameters
-            List<IDbDataParameter> parameters = new List<IDbDataParameter>();
-            IDbDataParameter param = GetParameter();
-            param.ParameterName = String.Format(GetParameterFormat(), "PROJECTID");
-            param.Value = projectId;
-            parameters.Add(param);
-
-            // get all matching issue ids for current filter settings
-            string sql = "SELECT issues.tracker_id AS TrackerID, issues.id, issues.created_on, issues.status_id FROM issues"
-                       + " WHERE issues.project_id = " + String.Format(GetParameterFormat(), "PROJECTID") + sqlCommand
-                       + " and issues.tracker_id IN(" + trackerIds + ")";
+            string sql = GetMatchingIssueSql(_sqlCommand, _trackerIds);
 
             dtIssueIds = GetDataTable(sql, parameters.ToArray<IDbDataParameter>(), false);
 
-            // get default status for a ticket
-            int newTicketStatusID = 1;
             try
             {
                 sql = "SELECT issue_statuses.id FROM issue_statuses WHERE issue_statuses.is_default = '1'";
                 dtDefaultStatus = GetDataTable(sql, null, true);
-                DataRow drDefaultStatus = dtDefaultStatus.Rows[0];
+                drDefaultStatus = dtDefaultStatus.Rows[0];
 
                 // get the default status for a new ticket
                 newTicketStatusID = int.Parse(drDefaultStatus[0].ToString());
             }
             catch (MySql.Data.MySqlClient.MySqlException)
-            { 
+            {
                 // might fail if there is no default, assume the first then
             }
 
             foreach (DataRow dr in dtIssueIds.Rows)
             {
                 // fetches the history for the current id
-                DataTable currentHistory = CreateIssueHistoryTable((int)dr[1], trackerIds);
+                currentHistory = CreateIssueHistoryTable((int)dr[1], _trackerIds);
 
                 // add it to our history object
                 historyTable[(int)dr[1]] = currentHistory;
             }
 
-            DataTable dtIssueStatuses;
             // Get all available statuses
             sql = "SELECT issue_statuses.id, issue_statuses.name, issue_statuses.is_closed, issue_statuses.default_done_ratio FROM issue_statuses";
             dtIssueStatuses = GetDataTable(sql);
 
             // create the result table
-            DataTable theGiantHistory = new DataTable();
+            theGiantHistory = new DataTable();
 
             // add date column
             DataColumn dateCol = new DataColumn("Date", typeof(DateTime));
@@ -544,10 +336,17 @@ namespace combit.RedmineReports
             theGiantHistory.Columns.Add(changedIssues);
 
             // now loop through history
-            for (int days = -startDate; days <= 0; days++)
+            for (int days = -_startDate; days <= 0; days++)
             {
-                DateTime currentDay = DateTime.Now.AddDays(days);
-
+                DateTime currentDay;
+                if (isDateTime)
+                {
+                    currentDay = _toDate.AddDays(days);
+                }
+                else
+                {
+                    currentDay = DateTime.Now.AddDays(days);
+                }
                 int creationCount = 0;
                 int changesCount = 0;
 
@@ -669,10 +468,7 @@ namespace combit.RedmineReports
                 // add the row for this day
                 theGiantHistory.Rows.Add(rowForToday);
             }
-            theGiantHistory.TableName = "History";
-            return theGiantHistory;
         }
-
         public DataTable GetDataTable(string sql)
         {
             return GetDataTable(sql, null, false);
@@ -738,9 +534,7 @@ namespace combit.RedmineReports
 
             return trackersTable;
         }
-
-        
-
+       
         public DataView GetVersions(string projectID)
         {
             // SQL Query on Versions
