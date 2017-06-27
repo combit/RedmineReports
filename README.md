@@ -12,5 +12,10 @@ The binaries are built against version 6.9.7.0 This package contains an applicat
 # Designer Manual
 You can get a comprehensive manual on the report designer from 
 http://www.combit.net/reporting-tool-en/manual-report-designer-List-Label.pdf
+
 There is also a german version of the manual available on the website: 
 http://www.combit.net/reporting-tool/handbuch-report-designer-List-Label.pdf
+
+![RedmineReports](https://github.com/combit/RedmineReports/blob/master/trunk/Images/RedmineReports.png)
+
+![RedmineReports Designer](https://github.com/combit/RedmineReports/blob/master/trunk/Images/RedmineReports_Designer.png)
