@@ -1,2 +1,0 @@
-**Project Description**
-Reporting support for the popular Redmine ticketing system. Fully fledged report designer and comprehensive sample report included. For further information see documentation-tab.
