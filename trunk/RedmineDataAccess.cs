@@ -1,4 +1,4 @@
-﻿using combit.ListLabel20.DataProviders;
+﻿using combit.ListLabel22.DataProviders;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -494,8 +494,13 @@ namespace combit.RedmineReports
             string sqlProject = "SELECT id, name, parent_id FROM projects";
             if (!UseAllProjects)
             {
-                sqlProject += " WHERE parent_id IS null"; 
+                sqlProject += " WHERE parent_id IS null";
             }
+            else
+            {
+                sqlProject += " ORDER BY COALESCE(parent_id, id), parent_id IS NOT NULL, id";
+            }
+
 
             DataTable projectTable = GetDataTable(sqlProject); 
             projectTable.Columns.Add(new DataColumn("display_name",typeof(string)));

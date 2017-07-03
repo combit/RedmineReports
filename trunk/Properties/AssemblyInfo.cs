@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("RedmineReports")]
 [assembly: AssemblyDescription("A reporting tool for Redmine")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("CodePlex")]
+[assembly: AssemblyCompany("combit GmbH")]
 [assembly: AssemblyProduct("RedmineReports")]
 [assembly: AssemblyCopyright("Released under the MS-PL 2011")]
 [assembly: AssemblyTrademark("")]
@@ -31,5 +31,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
+[assembly: AssemblyVersion("2.2.0.0")]
+[assembly: AssemblyFileVersion("2.2.0.0")]
