@@ -1,4 +1,4 @@
-﻿using combit.ListLabel22.DataProviders;
+﻿using combit.ListLabel24.DataProviders;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -21,7 +21,7 @@ namespace combit.RedmineReports
             provider.MinimalSelect = false;
             IDbCommand cmd = _connection.CreateCommand();
 
-            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject AS IssueName, issue_statuses.name AS IssueStatus, u1.login AS LoginName, u1.status AS LoginNameStatus , u1.firstname AS FirstName, u1.lastname AS LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
+            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject AS IssueName, issue_statuses.name AS IssueStatus, u1.login AS LoginName, u1.status AS LoginNameStatus , u1.firstname AS FirstName, u1.lastname AS LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, u2.lastname AS AssignedToUserLastname, u2.type AS AssignedToUserType, issue_categories.name AS Category"
                             + " FROM (issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id)"
                             + " INNER JOIN users u1 ON issues.author_id = u1.id"
                             + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
@@ -32,7 +32,7 @@ namespace combit.RedmineReports
                             + " WHERE issues.project_id = '" + _projectId + "'" + _sqlCommand + " and issues.tracker_id IN(" + _trackerIDs + ")";
             provider.AddCommand(cmd, "Issues", "`{0}`", "?{0}");
 
-            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.status AS LoginNameStatus, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
+            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.status AS LoginNameStatus, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser,u2.lastname AS AssignedToUserLastname, u2.type AS AssignedToUserType, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
                             + " FROM (issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id)"
                             + " INNER JOIN users u1 ON issues.author_id = u1.id"
                             + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
@@ -49,7 +49,7 @@ namespace combit.RedmineReports
                             + " WHERE issues.project_id = " + _projectId + "" + _sqlCommand + " and issues.tracker_id IN(" + _trackerIDs + ") GROUP BY status_id";
             provider.AddCommand(cmd, "IssuesByStatus", "`{0}`", "?{0}");
 
-            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.status AS LoginNameStatus, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
+            cmd.CommandText = "SELECT issues.tracker_id AS TrackerID, issues.id AS IssueID, issues.subject as IssueName, issue_statuses.name as IssueStatus, u1.login as LoginName, u1.status AS LoginNameStatus, u1.firstname as FirstName, u1.lastname as LastName, versions.name AS Version, projects.name AS ProjectName, enumerations.name AS Priority, issue_statuses.is_closed AS IsClosed, u2.login AS AssignedToUser, u2.lastname AS AssignedToUserLastname, u2.type AS AssignedToUserType, u2.status AS AssignedToUserStatus, issue_categories.name AS Category"
                             + " FROM (issues INNER JOIN issue_statuses ON issues.status_id = issue_statuses.id)"
                             + " INNER JOIN users u1 ON issues.author_id = u1.id"
                             + " LEFT OUTER JOIN users u2 ON issues.assigned_to_id = u2.id"
