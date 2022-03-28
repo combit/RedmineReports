@@ -18,6 +18,6 @@ You can get a comprehensive manual on the report designer here: https://www.comb
 
 There is also a German version of the manual available here: https://www.combit.net/docs/designer-handbuch.pdf
 
-![RedmineReports](https://github.com/combit/RedmineReports/blob/master/trunk/Images/RedmineReports.png)
+![RedmineReports](https://github.com/combit/RedmineReports/blob/main/Images/RedmineReports.png)
 
-![RedmineReports Designer](https://github.com/combit/RedmineReports/blob/master/trunk/Images/RedmineReports_Designer.png)
+![RedmineReports Designer](https://github.com/combit/RedmineReports/blob/main/Images/RedmineReports_Designer.png)
