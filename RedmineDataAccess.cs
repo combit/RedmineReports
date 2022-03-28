@@ -1,4 +1,4 @@
-﻿using combit.ListLabel24.DataProviders;
+﻿using combit.Reporting.DataProviders;
 using System;
 using System.Collections.Generic;
 using System.Data;
