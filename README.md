@@ -15,9 +15,9 @@ To quickly get up and running, just download the precompiled binaries from the p
 # Designer Manual
 A comprehensive manual on the List & Label Report Designer is also available:
 
-**English:** [PDF](https://www.combit.com/docs/designer-manual.pdf), [Online](https://docu.combit.net/designer/en/)
+**English:** [Online](https://docu.combit.net/designer/en/), [PDF](https://www.combit-support.net/docs/ll/en/combit-listlabel-designer-manual.pdf)
 
-**German:** [PDF](https://www.combit.net/docs/designer-handbuch.pdf), [Online](https://docu.combit.net/designer/de/)
+**German:** [Online](https://docu.combit.net/designer/de/), [PDF](https://www.combit-support.net/docs/ll/de/combit-listlabel-designer-handbuch.pdf)
 
 # Contributions
 We're happy to receive pull requests for any improvements on this repository.
