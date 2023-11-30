@@ -224,6 +224,7 @@
             // 
             // menuStrip1
             // 
+            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.configurationToolStripMenuItem});
             resources.ApplyResources(this.menuStrip1, "menuStrip1");
@@ -251,7 +252,7 @@
             // 
             // pictureBox2
             // 
-            this.pictureBox2.Image = global::combit.RedmineReports.Properties.Resources.RR_LL_Logo;
+            this.pictureBox2.Image = global::combit.RedmineReports.Properties.Resources.ll_logo_powered_by_combit;
             resources.ApplyResources(this.pictureBox2, "pictureBox2");
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.TabStop = false;
@@ -276,6 +277,7 @@
             this.Controls.Add(this.btnDesign);
             this.Controls.Add(this.menuStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Icon = global::combit.RedmineReports.Properties.Resources.LL_Redmine;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "RedmineReportsForm";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);

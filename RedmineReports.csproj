@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>combit.RedmineReports</RootNamespace>
     <AssemblyName>RedmineReports</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ApplicationIcon>LL-Redmine.ico</ApplicationIcon>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -61,8 +61,8 @@
     </StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="combit.ListLabel28">
-      <HintPath>combit.ListLabel28.dll</HintPath>
+    <Reference Include="combit.ListLabel29">
+      <HintPath>combit.ListLabel29.dll</HintPath>
     </Reference>
     <Reference Include="MySql.Data">
       <SpecificVersion>False</SpecificVersion>
@@ -130,10 +130,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="LL-Redmine.ico" />
+    <None Include="Resources\ll-logo_powered_by_combit.png" />
     <None Include="Resources\report.ico" />
     <None Include="Resources\design.ico" />
-    <None Include="Resources\RR-Logo.png" />
-    <None Include="Resources\RR-LL-Logo.png" />
+    <None Include="Resources\RR_Logo.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

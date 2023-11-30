@@ -19,7 +19,7 @@ namespace combit.RedmineReports.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -73,10 +73,20 @@ namespace combit.RedmineReports.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Powered_by_LL {
+        internal static System.Drawing.Bitmap ll_logo_powered_by_combit {
             get {
-                object obj = ResourceManager.GetObject("Powered-by-LL", resourceCulture);
+                object obj = ResourceManager.GetObject("ll-logo_powered_by_combit", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon LL_Redmine {
+            get {
+                object obj = ResourceManager.GetObject("LL_Redmine", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
             }
         }
         
@@ -93,19 +103,9 @@ namespace combit.RedmineReports.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap RR_LL_Logo {
-            get {
-                object obj = ResourceManager.GetObject("RR-LL-Logo", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap RR_Logo {
             get {
-                object obj = ResourceManager.GetObject("RR-Logo", resourceCulture);
+                object obj = ResourceManager.GetObject("RR_Logo", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

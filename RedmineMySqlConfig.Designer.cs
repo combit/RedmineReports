@@ -279,7 +279,7 @@
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.cancelButton);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Icon = global::combit.RedmineReports.Properties.Resources.LL_Redmine;
             this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(508, 305);
             this.MinimizeBox = false;
