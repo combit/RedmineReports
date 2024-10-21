@@ -7,10 +7,12 @@ The latest version can be downloaded [here](https://github.com/combit/RedmineRep
 
 ![RedmineReports Designer](https://github.com/combit/RedmineReports/blob/main/Images/RedmineReports_Designer.png)
 
-# Compiling
-In order to compile, a List & Label installation is required (see below where to get it).
+# Execution and Compilation
+RedmineReports uses the MySql .NET Connector from Oracle.
 
-To quickly get up and running, just download the precompiled binaries from the provided *Source code* ZIP and add the *MySql.Data.dll* which can be downloaded [here](https://dev.mysql.com/downloads/connector/net/). The binaries are built against version 8.0.15.
+For execution you will need to download the precompiled *MySql.Data.dll* contained in the *Source Code ZIP Archive* in version 9.1.0 (for the latest release of RedmineReports) from the [MySQL Community Downloads](https://dev.mysql.com/downloads/connector/net/) website and to extract it into the RedmineReports folder.
+
+For compilation, a List & Label installation is required (see below where to get it). The project itself uses the corresponding NuGet package *MySql.Data*, therefore no additional download is required.
 
 # Designer Manual
 A comprehensive manual on the List & Label Report Designer is also available:
