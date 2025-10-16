@@ -10,7 +10,7 @@ The latest version can be downloaded [here](https://github.com/combit/RedmineRep
 # Execution and Compilation
 RedmineReports uses the MySql .NET Connector from Oracle.
 
-For execution you will need to download the precompiled *MySql.Data.dll* contained in the *Source Code ZIP Archive* in version 9.1.0 (for the latest release of RedmineReports) from the [MySQL Community Downloads](https://dev.mysql.com/downloads/connector/net/) website and to extract it into the RedmineReports folder.
+For execution you will need to download the precompiled *MySql.Data.dll* contained in the *Source Code ZIP Archive* in version 9.4.0 (for the latest release of RedmineReports) from the [MySQL Community Downloads](https://dev.mysql.com/downloads/connector/net/) website and to extract it into the RedmineReports folder.
 
 For compilation, a List & Label installation is required (see below where to get it). The project itself uses the corresponding NuGet package *MySql.Data*, therefore no additional download is required.
 
