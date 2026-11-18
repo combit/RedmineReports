@@ -7,14 +7,14 @@ The latest version can be downloaded [here](https://github.com/combit/RedmineRep
 
 ![RedmineReports Designer](https://github.com/combit/RedmineReports/blob/main/Images/RedmineReports_Designer.png)
 
-# Execution and Compilation
+# Execution and compilation
 RedmineReports uses the MySql .NET Connector from Oracle.
 
-For execution you will need to download the precompiled *MySql.Data.dll* contained in the *Source Code ZIP Archive* in version 9.4.0 (for the latest release of RedmineReports) from the [MySQL Community Downloads](https://dev.mysql.com/downloads/connector/net/) website and to extract it into the RedmineReports folder.
+For execution you will need to download the precompiled *MySql.Data.dll* contained in the *Source Code ZIP Archive* in version 26.10.0 (for the latest release of RedmineReports) from the [MySQL Community Downloads](https://dev.mysql.com/downloads/connector/net/) website and to extract it into the RedmineReports folder.
 
 For compilation, a List & Label installation is required (see below where to get it). The project itself uses the corresponding NuGet package *MySql.Data*, therefore no additional download is required.
 
-# Designer Manual
+# Designer manual
 A comprehensive manual on the List & Label Report Designer is also available:
 
 **English:** [Online](https://docu.combit.net/designer/en/), [PDF](https://www.combit-support.net/docs/ll/en/combit-listlabel-designer-manual.pdf)
@@ -24,7 +24,7 @@ A comprehensive manual on the List & Label Report Designer is also available:
 # Contributions
 We're happy to receive pull requests for any improvements on this repository.
 
-# About List & Label and Where to Get
+# About List & Label and where to get
 List & Label is our **Reporting Tool for Software Developers** for desktop, web and cloud applications. For further information and a fully functional free 30-day trial version please visit our [website](https://www.combit.com/reporting-tool/).
 
 # Contact
